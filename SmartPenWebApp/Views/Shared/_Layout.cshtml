@@ -1,0 +1,32 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Smart Sign: @ViewBag.Title</title>
+    <link href="~/css/site.css" rel="stylesheet" />
+</head>
+<body>
+    <header>Welcome to Smart Sign</header>
+    <menu>
+        <ul>
+            <li><a asp-controller="App" asp-action="Admin">Home</a></li>
+            <li><a asp-controller="App" asp-action="Search">Search</a></li>
+            <li><a asp-controller="App" asp-action="Client">Client</a></li>
+        </ul>
+    </menu> 
+    <section>
+        <h1>@ViewBag.Title</h1>
+        @RenderBody()
+    </section>
+    <footer>Michael McNamara - Industry Project</footer>
+    
+    
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/admin.js"></script>
+    
+    @*Create a place in the layout that a view can use to insert optional content(scripts).
+        has a matching section in a view page
+        
+        *@
+    @RenderSection("scripts", false)
+</body>
+</html>

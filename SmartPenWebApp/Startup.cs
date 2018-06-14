@@ -15,20 +15,43 @@ namespace SmartPenWebApp
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            // ASP.net core requires dependancy injection?
+            services.AddMvc();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            // This shows developer exception page while in development environment.
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
+            /* Takes request url's and tries to find an index.html eg change :8888/ to :8888/index.html
+            So, the order matters because static files needs a file to look for
+            
+            app.UseDefaultFiles();
+            MVC has it's own defaults which replace this
+            */
 
-            app.Run(async (context) =>
+            // Serve static html files stored in wwwroot
+            app.UseStaticFiles();
+
+            /*
+             Enable MVC: Listen to requests, try to map them to a controller.
+             Configure the route
+             */
+            app.UseMvc(cfg =>
             {
-                await context.Response.WriteAsync("Hello World!");
+                cfg.MapRoute(
+                    "Default",
+                    "/{controller}/{action}/{id?}",
+                    new { controller = "App", Action = "Index" });
             });
+
+
         }
     }
 }
