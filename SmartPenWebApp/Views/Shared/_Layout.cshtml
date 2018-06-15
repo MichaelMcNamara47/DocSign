@@ -2,31 +2,44 @@
 <html>
 <head>
     <title>Smart Sign: @ViewBag.Title</title>
+    <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/lib/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
     <link href="~/css/site.css" rel="stylesheet" />
 </head>
 <body>
-    <header>Welcome to Smart Sign</header>
-    <menu>
-        <ul>
-            <li><a asp-controller="App" asp-action="Admin">Home</a></li>
-            <li><a asp-controller="App" asp-action="Search">Search</a></li>
-            <li><a asp-controller="App" asp-action="Client">Client</a></li>
-        </ul>
-    </menu> 
-    <section>
-        <h1>@ViewBag.Title</h1>
+    <div class="navbar navbar-inverse">
+        <header class="container">
+            <div class="navbar-header">
+                <div class="navbar-brand"><i class="fa fa-pencil-square"></i> Smart Sign</div>
+                <button class="navbar-toggle" data-toggle="collapse" data-target="#menu">@*&#9776;*@<i class="fa fa-ellipsis-v" style="color:#9d9d9d"></i> </button>
+            </div>
+            <div id="menu" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li><a asp-controller="App" asp-action="Admin">Admin</a></li>
+                    <li><a asp-controller="App" asp-action="Search">Search</a></li>
+                    <li><a asp-controller="App" asp-action="Client">Client</a></li>
+                </ul>
+            </div>
+        </header>
+    </div>
+    <section class="container">
+        <h2 class="text-center">@ViewBag.Title</h2>
         @RenderBody()
     </section>
-    <footer>Michael McNamara - Industry Project</footer>
-    
-    
+    <footer class="container">
+        <div class="text-center">Michael McNamara - Industry Project</div>
+    </footer>
+
+
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="~/js/admin.js"></script>
-    
+
     @*Create a place in the layout that a view can use to insert optional content(scripts).
         has a matching section in a view page
-        
-        *@
+
+    *@
     @RenderSection("scripts", false)
 </body>
 </html>

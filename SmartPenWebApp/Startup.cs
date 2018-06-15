@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;//File upload, path/directory
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders; // File upload
+using SmartSignWebApp.Services;
 
 namespace SmartPenWebApp
 {
@@ -16,6 +19,15 @@ namespace SmartPenWebApp
         public void ConfigureServices(IServiceCollection services)
         {
             // ASP.net core requires dependancy injection?
+
+            /*
+             Service for file upload (using IFileProvider
+             */
+            services.AddSingleton<IFileProvider>(
+                new PhysicalFileProvider(
+                    Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")));
+
+            services.AddTransient<IMailService, SGMailService>();
             services.AddMvc();
 
         }

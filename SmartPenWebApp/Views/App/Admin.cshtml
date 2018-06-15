@@ -9,32 +9,56 @@
     <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
 }
 
-<div id="uploadForm">
-    <form method="post">
-        <div asp-validation-summary="ModelOnly"></div>
-        <label>Upload Document:</label>
-        <input name="file" type="file" />
-        <input id="uploadButton" type="submit" value="Upload Document" />
-        @*Validation for upload (not added to model yet)
+    <div id="uploadForm">
+        
+
+        <div class="well">
+            @*File Upload*@
+            <form asp-controller="app" asp-action="UploadFile" method="post"
+                  enctype="multipart/form-data">
+
+                <input type="file" name="file" />
+                <button type="submit">Upload File</button>
+            </form>
+            @*File Upload*@
+
+
+            <form method="post">
+                <div asp-validation-summary="ModelOnly"></div>
+
+
+                @*Validation for upload (not added to model yet)
         <span asp-validation-for=""></span>
-        *@
-        <br />
-        <label asp-for="fName">First Name:</label>
-        <input asp-for="fName" type="text" />
-        <span asp-validation-for="fName"></span>
-        <br />
-        <label asp-for="lName">Last Name:</label>
-        <input asp-for="lName" type="text" />
-        <span asp-validation-for="lName"></span>
-        <br />
-        <label asp-for="email">Email:</label>
-        <input asp-for="email" type="email" />
-        <span asp-validation-for="email"></span>
-        <br />
-        <label asp-for="message">Message:</label>
-        <textarea asp-for="message" rows="4"></textarea>
-        <span asp-validation-for="message"></span>
-        <br />
-        <input type="submit" value="Send Document" />
-    </form>
-</div> 
+        <span>
+            <label for="file">Choose a file :</label>
+            <input type="file" id="file">
+        </span>*@
+
+                <div class="form-group">
+                    <label asp-for="fName">First Name:</label>
+                    <input asp-for="fName" type="text" class="form-control" />
+                    <span asp-validation-for="fName"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="lName">Last Name:</label>
+                    <input asp-for="lName" type="text" class="form-control" />
+                    <span asp-validation-for="lName"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="email">Email:</label>
+                    <input asp-for="email" type="email" class="form-control" />
+                    <span asp-validation-for="email"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="message">Message:</label>
+                    <textarea asp-for="message" rows="4" class="form-control"></textarea>
+                    <span asp-validation-for="message"></span>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary"><i class="fa fa-envelope"></i> Send Document</button>
+                    <div>@ViewBag.UserMessage</div>
+                </div>
+            </form>
+        </div>
+    </div> 

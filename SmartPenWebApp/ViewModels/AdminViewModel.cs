@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
@@ -14,7 +15,8 @@ namespace SmartSignWebApp.ViewModels
          Data annotations, Used for validation
          ?Sever side validation?
          Required: Data annotations  
-             */
+        */
+
         [Required]
         [MinLength(4, ErrorMessage = "Must be at least 4 character")]
         public string fName { get; set; }
