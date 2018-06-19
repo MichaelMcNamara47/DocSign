@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SmartSignWebApp.Services;
 using SmartSignWebApp.ViewModels;
@@ -13,14 +14,18 @@ namespace SmartSignWebApp.Controllers
 {
     public class AppController : Controller
     {
-        private readonly IMailService mailService;
+        private readonly IMailService _mailService;
+
+        //hosting env for paths
+        private IHostingEnvironment _hostingEnvironment;
 
         /* Use a constructor to inject the services needed
          * */
 
-        public AppController(IMailService mailService)
+        public AppController(IMailService mailService, IHostingEnvironment environment)
         {
-            this.mailService = mailService;
+            _hostingEnvironment = environment;
+            _mailService = mailService;
         }
 
 
@@ -49,7 +54,7 @@ namespace SmartSignWebApp.Controllers
              */
             if (ModelState.IsValid) {
                 //Create record              
-                mailService.SendModel(model);
+                _mailService.SendModel(model);
                 ViewBag.UserMessage = "Document sent";
                 ModelState.Clear();
             }
@@ -73,7 +78,7 @@ namespace SmartSignWebApp.Controllers
 
         public IActionResult ConnectPen()
         {
-            PenConnector.PenConnector penConnector = new PenConnector.PenConnector();
+            PenConnector.PenConnector penConnector = new PenConnector.PenConnector(_hostingEnvironment);
             penConnector.connectPen();
            
             ViewBag.Title = "Connecting...";

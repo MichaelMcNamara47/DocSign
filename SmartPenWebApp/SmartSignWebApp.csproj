@@ -7,12 +7,20 @@
   <ItemGroup>
     <Compile Remove="wwwroot\lib\jquery\external\**" />
     <Compile Remove="wwwroot\lib\jquery\src\**" />
+    <Compile Remove="wwwroot\NewFolder\**" />
+    <Compile Remove="wwwroot\uploads\**" />
     <Content Remove="wwwroot\lib\jquery\external\**" />
     <Content Remove="wwwroot\lib\jquery\src\**" />
+    <Content Remove="wwwroot\NewFolder\**" />
+    <Content Remove="wwwroot\uploads\**" />
     <EmbeddedResource Remove="wwwroot\lib\jquery\external\**" />
     <EmbeddedResource Remove="wwwroot\lib\jquery\src\**" />
+    <EmbeddedResource Remove="wwwroot\NewFolder\**" />
+    <EmbeddedResource Remove="wwwroot\uploads\**" />
     <None Remove="wwwroot\lib\jquery\external\**" />
     <None Remove="wwwroot\lib\jquery\src\**" />
+    <None Remove="wwwroot\NewFolder\**" />
+    <None Remove="wwwroot\uploads\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -309,13 +317,14 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.Windows.Compatibility" Version="2.0.0" />
     <PackageReference Include="SendGrid" Version="9.9.0" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="node_modules\" />
-    <Folder Include="wwwroot\uploads\" />
+    <Folder Include="wwwroot\img\pen\" />
   </ItemGroup>
 
   <ItemGroup>
