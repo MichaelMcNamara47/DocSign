@@ -38,50 +38,56 @@ namespace SmartSignWebApp.PenConnector
         public void connectPen()
         {
             BluetoothAdapter mBtAdt = new BluetoothAdapter();
-            PenDevice[] devices = mBtAdt.FindAllDevices();
-            Debug.WriteLine("Pens discovered " + devices.Length);
-
-            if (devices.Length > 0)
+            Thread thread = new Thread(unused =>
             {
-                
-                int deviceNumber = 0;
-                foreach (PenDevice p in devices)
+                PenDevice[] devices = mBtAdt.FindAllDevices();
+                Debug.WriteLine("Pens discovered " + devices.Length);
+
+                if (devices.Length > 0)
                 {
-                    Debug.WriteLine("[" + deviceNumber + "]"
-                        + "\t Name:" + p.Name
-                        + "\t Address:" + p.Address
-                        + "\t Authenticated:" + p.Authenticated
-                        + "\t ClassOfDevice:" + p.ClassOfDevice
-                        + "\t LastSeen:" + p.LastSeen
-                        + "\t LastUsed:" + p.LastUsed
-                        + "\t Remembered:" + p.Remembered
-                        + "\t Rssi:" + p.Rssi
-                        );
-                }
 
-                Debug.WriteLine("Connecting to pen...");
-                //mPenCommV1 = new PenCommV1(new PenConnector(_hostingEnvironment));
-                mPenCommV1 = new PenCommV1(this);
-
-
-                bool result = mBtAdt.Connect(devices.ElementAt(0).Address, delegate (uint deviceClass)
-                {
-                    if (deviceClass == mPenCommV1.DeviceClass)
+                    int deviceNumber = 0;
+                    foreach (PenDevice p in devices)
                     {
-                        mBtAdt.Bind(mPenCommV1);
-
-                        // You can set the name of PenComm object in the following ways
-                        // If you don't set the name of the PenComm, it is automatically set to the address of a connected pen.
-                        mBtAdt.Bind(mPenCommV1, "name of PenComm");
-
-                        // You can get or set a name of PenComm
-                        // mBtAdt.Name = "name of PenComm";
+                        Debug.WriteLine("[" + deviceNumber + "]"
+                            + "\t Name:" + p.Name
+                            + "\t Address:" + p.Address
+                            + "\t Authenticated:" + p.Authenticated
+                            + "\t ClassOfDevice:" + p.ClassOfDevice
+                            + "\t LastSeen:" + p.LastSeen
+                            + "\t LastUsed:" + p.LastUsed
+                            + "\t Remembered:" + p.Remembered
+                            + "\t Rssi:" + p.Rssi
+                            );
                     }
-                });
-            }
-            else {
-                Debug.WriteLine("Pen Not Found...");
-            }
+
+                    Debug.WriteLine("Connecting to pen...");
+                    //mPenCommV1 = new PenCommV1(new PenConnector(_hostingEnvironment));
+                    mPenCommV1 = new PenCommV1(this);
+
+
+                    bool result = mBtAdt.Connect(devices.ElementAt(0).Address, delegate (uint deviceClass)
+                    {
+                        if (deviceClass == mPenCommV1.DeviceClass)
+                        {
+                            mBtAdt.Bind(mPenCommV1);
+
+                            // You can set the name of PenComm object in the following ways
+                            // If you don't set the name of the PenComm, it is automatically set to the address of a connected pen.
+                            mBtAdt.Bind(mPenCommV1, "name of PenComm");
+
+                            // You can get or set a name of PenComm
+                            // mBtAdt.Name = "name of PenComm";
+                        }
+                    });
+                }
+                else
+                {
+                    Debug.WriteLine("Pen Not Found...");
+                }
+            });
+            thread.IsBackground = true;
+            thread.Start();
         }
 
         public void onConnected(IPenComm sender, int maxForce, string firmwareVersion)
