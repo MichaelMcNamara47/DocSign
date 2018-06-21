@@ -17,6 +17,9 @@ namespace SmartSignWebApp.ViewModels
          Required: Data annotations  
         */
 
+
+        public string docURL { get; set; }
+
         [Required]
         [MinLength(4, ErrorMessage = "Must be at least 4 character")]
         public string fName { get; set; }

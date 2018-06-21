@@ -15,17 +15,24 @@ namespace SmartSignWebApp.Controllers
     public class AppController : Controller
     {
         private readonly IMailService _mailService;
+        public static PenConnector.PenConnector _penConnector { get; set; }
 
         //hosting env for paths
         private IHostingEnvironment _hostingEnvironment;
 
         /* Use a constructor to inject the services needed
          * */
+        public static int numInstances = 0;
 
         public AppController(IMailService mailService, IHostingEnvironment environment)
         {
             _hostingEnvironment = environment;
             _mailService = mailService;
+            //_penConnector = new PenConnector.PenConnector(_hostingEnvironment);
+
+            System.Console.WriteLine("************Number of instances APPC " + (++numInstances));
+
+
         }
 
 
@@ -59,8 +66,6 @@ namespace SmartSignWebApp.Controllers
                 ModelState.Clear();
             }
 
-
-
             return View();
         }
 
@@ -68,6 +73,7 @@ namespace SmartSignWebApp.Controllers
         {
             ViewBag.Title = "Client";
             return View();
+            
         }
 
         public IActionResult Search()
@@ -77,14 +83,34 @@ namespace SmartSignWebApp.Controllers
         }
 
         public IActionResult ConnectPen()
-        {
-            PenConnector.PenConnector penConnector = new PenConnector.PenConnector(_hostingEnvironment);
-            penConnector.connectPen();
-           
+        {           
+            _penConnector = new PenConnector.PenConnector(_hostingEnvironment);
+            _penConnector.connectPen();
+            _penConnector.ClearImage();
+
             ViewBag.Title = "Connecting...";
             return RedirectToAction("Client");
+            //return new EmptyResult();
         }
+        public IActionResult DrawSignature()
+        {
+            _penConnector.DrawSignature();
+            
+            ViewBag.Title = "Drawing Signature...";
+            return RedirectToAction("Client");
+        }
+        public IActionResult ClearImage()
+        {
 
+            if (_penConnector != null)
+            {
+                _penConnector.ClearSignature();
+                _penConnector.ClearImage();
+            }
+
+            ViewBag.Title = "Clearing Image...";
+            return RedirectToAction("Client");
+        }
         //Start of file upload methods
         [HttpPost]
         public async Task<IActionResult> UploadFile(IFormFile file)
@@ -92,9 +118,14 @@ namespace SmartSignWebApp.Controllers
             if (file == null || file.Length == 0)
                 return Content("file not selected");
 
+            System.Console.WriteLine("Current dir: "+Directory.GetCurrentDirectory());
+            System.Console.WriteLine("FileName: " + file.FileName );
+            System.Console.WriteLine("Webrooot: " + System.IO.Path.Combine(_hostingEnvironment.WebRootPath));
+
+
             var path = Path.Combine(
-                        Directory.GetCurrentDirectory(), "wwwroot/uploads",
-                        file.FileName);
+                        Directory.GetCurrentDirectory(), "wwwroot/uploads/something.pdf"
+                       );
 
             using (var stream = new FileStream(path, FileMode.Create))
             {
@@ -104,24 +135,7 @@ namespace SmartSignWebApp.Controllers
             return RedirectToAction("Admin");
         }
 
-        /*public async Task<IActionResult> Download(string filename)
-        {
-            if (filename == null)
-                return Content("filename not present");
 
-            var path = Path.Combine(
-                           Directory.GetCurrentDirectory(),
-                           "wwwroot", filename);
 
-            var memory = new MemoryStream();
-            using (var stream = new FileStream(path, FileMode.Open))
-            {
-                await stream.CopyToAsync(memory);
-            }
-            memory.Position = 0;
-            return File(memory, GetContentType(path), Path.GetFileName(path));
-        }*/
-
-        //End of File upload methods
     }
 }

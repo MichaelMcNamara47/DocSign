@@ -2,18 +2,38 @@
         //ViewBag.Title = "Client";
     }*@
 
+@section scripts {
+    <script src="~/js/client.js"></script>
+}
+
 <div class="well">
     <div>
         <label>Download</label>
         <button>Download Document</button>
         <br />
 
-        <form asp-controller="app" asp-action="ConnectPen">
+        <form asp-controller="App" asp-action="ConnectPen">
             <label>Connect</label>
-            <button type="submit">Connect SmartPen</button>
+            <button id="connectButton" type="submit">Connect SmartPen</button>
         </form>
+        @*<form asp-controller="Pen" asp-action="DisconnectPen">*@
+        <label>Disconnect</label>
+        <button id="disconnectButton" type="submit">Disconnect SmartPen</button>
+        @*/form>*@
+        <form asp-controller="App" asp-action="ClearImage">
+            <label>ClearImage</label>
+            <button type="submit">ClearImage</button>
+        </form>
+
+        <form asp-controller="App" asp-action="DrawSignature">
+            <label>Draw Signature</label>
+            <button type="submit">Draw Signature</button>
+        </form>
+        
         <br />
         <img id="sig" src="~/web.png">
+        <br />
+        <button id="refreshImage" type="submit">Refresh Image</button>
         <br />
         <label>Sign Document</label>
         <button>Sign</button>

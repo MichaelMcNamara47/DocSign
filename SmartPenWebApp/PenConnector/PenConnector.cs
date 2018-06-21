@@ -14,18 +14,22 @@ using Microsoft.AspNetCore.Hosting;
 //using Neosmartpen.Net.Protocol.v2 | Handling data and communication with peer device(protocol version is 2.xx ) |
 
 namespace SmartSignWebApp.PenConnector
+
 {
     public class PenConnector : PenCommV1Callbacks
     {
         
-        static PenCommV1 mPenCommV1;
+        private PenCommV1 mPenCommV1;
+        public BluetoothAdapter mBtAdt;
+        public static int numInstances = 0;
 
         public PressureFilter mFilter;
 
         static int w = 400;
         static int h = 400;
-        private Bitmap mBitmap = new Bitmap(w, h);
+        private Bitmap mBitmap;// = new Bitmap(w, h);
 
+        public Signature mSig { get; set; }
 
         private Stroke mStroke;
         private IHostingEnvironment _hostingEnvironment;
@@ -33,11 +37,24 @@ namespace SmartSignWebApp.PenConnector
         public PenConnector(IHostingEnvironment hostingEnvironment)
         {
             _hostingEnvironment = hostingEnvironment;
+            initImage();
+            mSig = new Signature();
+            Debug.WriteLine("************Number of instances "+ (++numInstances));
+        }
+
+        internal void DrawSignature()
+        {
+            mSig.ForEach(delegate (Stroke s) {
+                DrawStroke(s);
+                Debug.WriteLine(s);
+            });
+            saveImage();
         }
 
         public void connectPen()
         {
-            BluetoothAdapter mBtAdt = new BluetoothAdapter();
+            //mSig = new Signature();
+            mBtAdt = new BluetoothAdapter();
             Thread thread = new Thread(unused =>
             {
                 PenDevice[] devices = mBtAdt.FindAllDevices();
@@ -64,7 +81,7 @@ namespace SmartSignWebApp.PenConnector
                     Debug.WriteLine("Connecting to pen...");
                     //mPenCommV1 = new PenCommV1(new PenConnector(_hostingEnvironment));
                     mPenCommV1 = new PenCommV1(this);
-
+                    
 
                     bool result = mBtAdt.Connect(devices.ElementAt(0).Address, delegate (uint deviceClass)
                     {
@@ -74,8 +91,9 @@ namespace SmartSignWebApp.PenConnector
 
                             // You can set the name of PenComm object in the following ways
                             // If you don't set the name of the PenComm, it is automatically set to the address of a connected pen.
-                            mBtAdt.Bind(mPenCommV1, "name of PenComm");
-
+                            
+                            //mBtAdt.Bind(mPenCommV1, "name of PenComm");
+                        
                             // You can get or set a name of PenComm
                             // mBtAdt.Name = "name of PenComm";
                         }
@@ -90,18 +108,45 @@ namespace SmartSignWebApp.PenConnector
             thread.Start();
         }
 
-        public void onConnected(IPenComm sender, int maxForce, string firmwareVersion)
+        internal void ClearImage()
         {
-            Debug.WriteLine("Pen Max Force = " + maxForce);
-            mFilter = new PressureFilter(maxForce);
+            initImage();
+            saveImage();
+        }
+        internal void ClearSignature() {
+            if (mSig != null) { mSig.Clear(); }
+        }
 
-            /*
+
+
+
+        private void saveImage()
+        {
+            mBitmap.Save(System.IO.Path.Combine(_hostingEnvironment.WebRootPath, "web.png"));
+            mBitmap.Save(@"C:\Users\Uver\Documents\NUIG\Semester 2\Project\Images\web.jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
+        }
+
+        private void initImage()
+        {
+            if (mBitmap != null) {
+                mBitmap.Dispose();
+            }
+            mBitmap = null;
+
             mBitmap = new Bitmap(w, h);
             
             Graphics g = Graphics.FromImage(mBitmap);
             g.Clear(Color.Transparent);
             g.Dispose();
-            */
+
+        }
+
+    public void onConnected(IPenComm sender, int maxForce, string firmwareVersion)
+        {
+            Debug.WriteLine("Pen Max Force = " + maxForce);
+            mFilter = new PressureFilter(maxForce);
+
+
 
             Debug.WriteLine("onConnected...\n");
             Debug.WriteLine("Connected...\n"
@@ -111,6 +156,7 @@ namespace SmartSignWebApp.PenConnector
                 + "\t Version:" + sender.Version
                 );
             PenCommV1 pencomm = sender as PenCommV1;
+
         }
 
 
@@ -132,6 +178,7 @@ namespace SmartSignWebApp.PenConnector
             mPenCommV1.ReqAddUsingNote();
             //mPenCommV1.ReqOfflineDataList();
             mPenCommV1.ReqPenStatus();
+
         }
 
         public void onReceivedPenStatus(IPenComm sender, int timeoffset, long timetick, int maxForce, int battery, int usedmem, int pencolor, bool autopowerMode, bool accelerationMode, bool hoverMode, bool beep, short autoshutdownTime, short penSensitivity, string modelName)
@@ -172,7 +219,7 @@ namespace SmartSignWebApp.PenConnector
                 + "\t DotType:" + dot.DotType
 
                 );
-            onTarget(dot);
+            //onTarget(dot);
             ProcessDot(dot);
         }
 
@@ -195,16 +242,27 @@ namespace SmartSignWebApp.PenConnector
             {
                 mStroke.Add(dot);
 
-                DrawStroke(mStroke);
+                //DrawStroke(mStroke);
+
+                mSig.Add(mStroke);
+
+                ClearImage();
+
+                DrawSignature();
+
+                //Debug.WriteLine("Number of lines: " + mSig.Count);
 
                 mFilter.Reset();
+
+                //saveImage();
             }
         }
 
+
+
         private void DrawStroke(Stroke stroke)
         {
-            //Need thread or something?
-            
+         
 
             float qx = 88.88f;
             float qy = 125.70f;
@@ -212,8 +270,11 @@ namespace SmartSignWebApp.PenConnector
             int dy = (int)((5.41 * h) / qy);
             Renderer.draw(mBitmap, stroke, (float)(w / qx), (float)(h / qy), -dx, -dy, 1, Color.FromArgb(200, Color.Blue));
 
+            
+            /*
             mBitmap.Save(System.IO.Path.Combine(_hostingEnvironment.WebRootPath, "web.png"));
             mBitmap.Save(@"C:\Users\Uver\Documents\NUIG\Semester 2\Project\Images\web.jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
+            */
             //var image = pictureBox1.Image = mBitmap;
             //added
             //pictureBox1.Image.Save(@"C:\Users\Uver\Documents\NUIG\Semester 2\Project\Images\save1.png", System.Drawing.Imaging.ImageFormat.Jpeg);
@@ -350,5 +411,9 @@ namespace SmartSignWebApp.PenConnector
             throw new NotImplementedException();
         }
 
-}
+        public bool disconnected()
+        {
+            return false;
+        }
+    }
 }
