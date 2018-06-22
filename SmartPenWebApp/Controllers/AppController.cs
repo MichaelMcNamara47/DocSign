@@ -10,12 +10,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Neosmartpen.Net.Protocol.v1;
+using SmartSignWebApp.PenConnector;
+
+
+
 namespace SmartSignWebApp.Controllers
 {
     public class AppController : Controller
     {
         private readonly IMailService _mailService;
-        public static PenConnector.PenConnector _penConnector { get; set; }
+        //public static PenConnector.PenConnector _penConnector { get; set; }
+        private readonly PenConnector.PenConnector _penConnector;
 
         //hosting env for paths
         private IHostingEnvironment _hostingEnvironment;
@@ -24,8 +30,9 @@ namespace SmartSignWebApp.Controllers
          * */
         public static int numInstances = 0;
 
-        public AppController(IMailService mailService, IHostingEnvironment environment)
+        public AppController(IMailService mailService, IHostingEnvironment environment, PenCommV1Callbacks penConnector)
         {
+            _penConnector = penConnector as PenConnector.PenConnector;
             _hostingEnvironment = environment;
             _mailService = mailService;
             //_penConnector = new PenConnector.PenConnector(_hostingEnvironment);
@@ -84,7 +91,7 @@ namespace SmartSignWebApp.Controllers
 
         public IActionResult ConnectPen()
         {           
-            _penConnector = new PenConnector.PenConnector(_hostingEnvironment);
+            //_penConnector = new PenConnector.PenConnector(_hostingEnvironment);
             _penConnector.connectPen();
             _penConnector.ClearImage();
 
@@ -116,15 +123,24 @@ namespace SmartSignWebApp.Controllers
         public async Task<IActionResult> UploadFile(IFormFile file)
         {
             if (file == null || file.Length == 0)
-                return Content("file not selected");
+            {
+                ViewBag.Message = "No File Selected";
+                return View("Admin");//RedirectToAction("Admin");
+            }
+            string pdfContentType = "application/pdf";
+            if (file.ContentType != pdfContentType)
+            {
+                ViewBag.Message = "Wrong format, PDF only";
+                return View("Admin");//RedirectToAction("Admin");
+            }
+            else {
+                ViewBag.Message = "Upload Accepted";
+            }
 
-            System.Console.WriteLine("Current dir: "+Directory.GetCurrentDirectory());
-            System.Console.WriteLine("FileName: " + file.FileName );
-            System.Console.WriteLine("Webrooot: " + System.IO.Path.Combine(_hostingEnvironment.WebRootPath));
-
-
+            string fileName = Path.GetFileName(file.FileName);
+            System.Console.WriteLine(fileName);
             var path = Path.Combine(
-                        Directory.GetCurrentDirectory(), "wwwroot/uploads/something.pdf"
+                        Directory.GetCurrentDirectory(), "wwwroot/uploads/"+fileName
                        );
 
             using (var stream = new FileStream(path, FileMode.Create))
@@ -132,7 +148,7 @@ namespace SmartSignWebApp.Controllers
                 await file.CopyToAsync(stream);
             }
 
-            return RedirectToAction("Admin");
+            return View("Admin");//RedirectToAction("Admin");
         }
 
 

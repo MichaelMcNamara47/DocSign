@@ -5,14 +5,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="wwwroot\img\NewFolder\**" />
     <Compile Remove="wwwroot\lib\jquery\external\**" />
     <Compile Remove="wwwroot\lib\jquery\src\**" />
+    <Compile Remove="wwwroot\uploads\**" />
+    <Content Remove="wwwroot\img\NewFolder\**" />
     <Content Remove="wwwroot\lib\jquery\external\**" />
     <Content Remove="wwwroot\lib\jquery\src\**" />
+    <Content Remove="wwwroot\uploads\**" />
+    <EmbeddedResource Remove="wwwroot\img\NewFolder\**" />
     <EmbeddedResource Remove="wwwroot\lib\jquery\external\**" />
     <EmbeddedResource Remove="wwwroot\lib\jquery\src\**" />
+    <EmbeddedResource Remove="wwwroot\uploads\**" />
+    <None Remove="wwwroot\img\NewFolder\**" />
     <None Remove="wwwroot\lib\jquery\external\**" />
     <None Remove="wwwroot\lib\jquery\src\**" />
+    <None Remove="wwwroot\uploads\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -314,6 +322,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="2.0.0" />
+    <PackageReference Include="PdfSharp" Version="1.32.3057" />
     <PackageReference Include="SendGrid" Version="9.9.0" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
   </ItemGroup>
@@ -322,7 +331,6 @@
     <Folder Include="node_modules\" />
     <Folder Include="Properties\" />
     <Folder Include="wwwroot\img\pen\" />
-    <Folder Include="wwwroot\uploads\" />
   </ItemGroup>
 
   <ItemGroup>

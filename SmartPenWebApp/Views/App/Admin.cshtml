@@ -18,8 +18,10 @@
                   enctype="multipart/form-data">
 
                 <input type="file" name="file" />
+                <label>@ViewBag.Message</label>
                 <button type="submit">Upload File</button>
             </form>
+            
             @*File Upload*@
 
 
@@ -28,11 +30,11 @@
 
 
                 @*Validation for upload (not added to model yet)
-        <span asp-validation-for=""></span>
-        <span>
-            <label for="file">Choose a file :</label>
-            <input type="file" id="file">
-        </span>*@
+            <span asp-validation-for=""></span>
+            <span>
+                <label for="file">Choose a file :</label>
+                <input type="file" id="file">
+            </span>*@
 
                 <div class="form-group">
                     <label asp-for="fName">First Name:</label>

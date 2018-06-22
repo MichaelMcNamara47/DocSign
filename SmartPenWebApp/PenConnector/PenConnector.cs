@@ -39,7 +39,6 @@ namespace SmartSignWebApp.PenConnector
             _hostingEnvironment = hostingEnvironment;
             initImage();
             mSig = new Signature();
-            Debug.WriteLine("************Number of instances "+ (++numInstances));
         }
 
         internal void DrawSignature()
@@ -114,6 +113,7 @@ namespace SmartSignWebApp.PenConnector
             saveImage();
         }
         internal void ClearSignature() {
+
             if (mSig != null) { mSig.Clear(); }
         }
 
@@ -122,8 +122,9 @@ namespace SmartSignWebApp.PenConnector
 
         private void saveImage()
         {
-            mBitmap.Save(System.IO.Path.Combine(_hostingEnvironment.WebRootPath, "web.png"));
-            mBitmap.Save(@"C:\Users\Uver\Documents\NUIG\Semester 2\Project\Images\web.jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
+            mBitmap.Save(System.IO.Path.Combine(_hostingEnvironment.WebRootPath, "img/pen/web.png"));
+            //mBitmap.Save(System.IO.Path.Combine(_hostingEnvironment.WebRootPath, "web.png"));
+            //mBitmap.Save(@"C:\Users\Uver\Documents\NUIG\Semester 2\Project\Images\web.jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
         }
 
         private void initImage()

@@ -12,7 +12,7 @@
       "commandName": "IISExpress",
       "launchBrowser": true,
       "environmentVariables": {
-        "SENDGRID_API_KEY": "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",
+        "SENDGRID_API_KEY": "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",
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },

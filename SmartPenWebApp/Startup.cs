@@ -10,6 +10,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders; // File upload
 using SmartSignWebApp.Services;
 
+using Neosmartpen.Net.Protocol.v1;
+using SmartSignWebApp.PenConnector;
+
 namespace SmartPenWebApp
 {
     public class Startup
@@ -28,6 +31,7 @@ namespace SmartPenWebApp
                     Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")));
 
             services.AddTransient<IMailService, SGMailService>();
+            services.AddSingleton<PenCommV1Callbacks, PenConnector>();
             services.AddMvc();
 
         }
