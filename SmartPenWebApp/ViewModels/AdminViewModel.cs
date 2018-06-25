@@ -20,12 +20,14 @@ namespace SmartSignWebApp.ViewModels
 
         public string docURL { get; set; }
 
-        [Required]
-        [MinLength(4, ErrorMessage = "Must be at least 4 character")]
+        [Required (ErrorMessage = "The First Name field is required")]
+        [MinLength(2, ErrorMessage = "Must be at least 2 characters")]
         public string fName { get; set; }
-        [Required]
-        [MinLength(4, ErrorMessage = "Must be at least 4 character")]
+
+        [Required(ErrorMessage = "The Last Name field is required")]
+        [MinLength(2, ErrorMessage = "Must be at least 2 characters")]
         public string lName { get; set; }
+
         [Required]
         [EmailAddress]
         public string email { get; set; }

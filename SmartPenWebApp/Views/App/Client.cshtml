@@ -16,10 +16,10 @@
             <label>Connect</label>
             <button id="connectButton" type="submit">Connect SmartPen</button>
         </form>
-        @*<form asp-controller="Pen" asp-action="DisconnectPen">*@
+        @*<form asp-controller="Pen" asp-action="DisconnectPen">
         <label>Disconnect</label>
         <button id="disconnectButton" type="submit">Disconnect SmartPen</button>
-        @*/form>*@
+        form>*@
         <form asp-controller="App" asp-action="ClearImage">
             <label>ClearImage</label>
             <button type="submit">ClearImage</button>
@@ -32,8 +32,7 @@
         
         <br />
         <img id="sig" src="~/img/pen/web.png">
-        <br />
-        <button id="refreshImage" type="submit">Refresh Image</button>
+
         <br />
         <label>Sign Document</label>
         <button>Sign</button>
