@@ -20,7 +20,7 @@ namespace SmartSignWebApp.Controllers
     public class AppController : Controller
     {
         private readonly IMailService _mailService;
-        //public static PenConnector.PenConnector _penConnector { get; set; }
+        ////public static PenConnector.PenConnector _penConnector { get; set; }
         private readonly PenConnector.PenConnector _penConnector;
 
         //hosting env for paths
