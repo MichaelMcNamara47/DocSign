@@ -28,16 +28,12 @@ namespace SmartSignWebApp.Controllers
 
         /* Use a constructor to inject the services needed
          * */
-        public static int numInstances = 0;
-
         public AppController(IMailService mailService, IHostingEnvironment environment, PenCommV1Callbacks penConnector)
         {
             _penConnector = penConnector as PenConnector.PenConnector;
             _hostingEnvironment = environment;
             _mailService = mailService;
             //_penConnector = new PenConnector.PenConnector(_hostingEnvironment);
-
-            System.Console.WriteLine("************Number of instances APPC " + (++numInstances));
 
 
         }
