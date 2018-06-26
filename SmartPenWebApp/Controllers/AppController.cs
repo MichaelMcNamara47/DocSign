@@ -31,6 +31,7 @@ namespace SmartSignWebApp.Controllers
         public AppController(IMailService mailService, IHostingEnvironment environment, PenCommV1Callbacks penConnector)
         {
             _penConnector = penConnector as PenConnector.PenConnector;
+            _penConnector.ClearImage();
             _hostingEnvironment = environment;
             _mailService = mailService;
             //_penConnector = new PenConnector.PenConnector(_hostingEnvironment);
