@@ -53,6 +53,7 @@ namespace SmartSignWebApp.Controllers
         public IActionResult Admin()
         {
             ViewBag.Title = "Admin";
+            ViewBag.UploadStatus = "Upload";
             return View();
         }
 
@@ -69,7 +70,7 @@ namespace SmartSignWebApp.Controllers
                 ViewBag.UserMessage = "Document sent";
                 ModelState.Clear();
             }
-
+            ViewBag.UploadStatus = "Upload";
             return View();
         }
 
@@ -121,31 +122,36 @@ namespace SmartSignWebApp.Controllers
         {
             if (file == null || file.Length == 0)
             {
+                ViewBag.UploadStatus = "Upload";
                 ViewBag.Message = "No File Selected";
                 return View("Admin");//RedirectToAction("Admin");
             }
             string pdfContentType = "application/pdf";
             if (file.ContentType != pdfContentType)
             {
+                ViewBag.UploadStatus = "Upload";
                 ViewBag.Message = "Wrong format, PDF only";
                 return View("Admin");//RedirectToAction("Admin");
             }
             else {
+                ViewBag.UploadStatus = "UploadSuccess";
                 ViewBag.Message = "Upload Accepted";
+            
+
+                string fileName = Path.GetFileName(file.FileName);
+                ViewBag.fileName = fileName;
+                System.Console.WriteLine(fileName);
+                var path = Path.Combine(
+                            Directory.GetCurrentDirectory(), "wwwroot/uploads/"+fileName
+                           );
+
+                using (var stream = new FileStream(path, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                return View("Admin");//RedirectToAction("Admin");
             }
-
-            string fileName = Path.GetFileName(file.FileName);
-            System.Console.WriteLine(fileName);
-            var path = Path.Combine(
-                        Directory.GetCurrentDirectory(), "wwwroot/uploads/"+fileName
-                       );
-
-            using (var stream = new FileStream(path, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            return View("Admin");//RedirectToAction("Admin");
         }
 
 

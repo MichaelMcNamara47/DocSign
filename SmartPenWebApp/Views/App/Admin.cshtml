@@ -1,59 +1,72 @@
 ﻿@model AdminViewModel
 @*{
-    ViewBag.Title = "Admin";
-}*@
+        ViewBag.Title = "Admin";
+    }*@
 
 @*This section is added to the scripts section are in the _Layout.cshtml*@
+<script>
+    uploadedFile = ("@(ViewBag.UploadStatus)" == "UploadSuccess" ) ? true:false;
+</script>
+
 @section scripts {
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/js/admin.js"></script>
 }
 
-    <div id="uploadForm">
-        
 
-        <div class="well">
-            @*File Upload*@
+<div id="uploadForm">
+
+
+    <div class="well">
+
+        @{
+            String uploadStatus = ViewBag.UploadStatus;
+            await Html.RenderPartialAsync(uploadStatus);
+        }
+
+
+        @*File Upload
             <form asp-controller="app" asp-action="UploadFile" method="post"
                   enctype="multipart/form-data">
 
                 <input type="file" name="file" />
                 <button type="submit">Upload PDF</button>
-                <br/>
+                <br />
                 <span>@ViewBag.Message</span>
             </form>
-            
+
             @*File Upload*@
 
 
-            <form method="post">
-                <div asp-validation-summary="ModelOnly"></div>
+        <form method="post" asp-controller="app" asp-action="Admin">
+            <div asp-validation-summary="ModelOnly"></div>
 
-                <div class="form-group">
-                    <label asp-for="fName">First Name:</label>
-                    <input asp-for="fName" type="text" class="form-control" />
-                    <span asp-validation-for="fName"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="lName">Last Name:</label>
-                    <input asp-for="lName" type="text" class="form-control" />
-                    <span asp-validation-for="lName"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="email">Email:</label>
-                    <input asp-for="email" type="email" class="form-control" />
-                    <span asp-validation-for="email"></span>
-                </div>
+            <div class="form-group">
+                <label asp-for="fName">First Name:</label>
+                <input asp-for="fName" type="text" class="form-control formToggle" />
+                <span asp-validation-for="fName"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="lName">Last Name:</label>
+                <input asp-for="lName" type="text" class="form-control formToggle" />
+                <span asp-validation-for="lName"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="email">Email:</label>
+                <input asp-for="email" type="email" class="form-control formToggle" />
+                <span asp-validation-for="email"></span>
+            </div>
 
-                <div class="form-group">
-                    <label asp-for="message">Message:</label>
-                    <textarea asp-for="message" rows="4" class="form-control"></textarea>
-                    <span asp-validation-for="message"></span>
-                </div>
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary"><i class="fa fa-envelope"></i> Send Document</button>
-                    <div>@ViewBag.UserMessage</div>
-                </div>
-            </form>
-        </div>
-    </div> 
+            <div class="form-group">
+                <label asp-for="message">Message:</label>
+                <textarea asp-for="message" rows="4" class="form-control formToggle"></textarea>
+                <span asp-validation-for="message"></span>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary formToggle"><i class="fa fa-envelope"></i> Send Document</button>
+                <div>@ViewBag.UserMessage</div>
+            </div>
+        </form>
+    </div>
+</div> 

@@ -1,0 +1,12 @@
+﻿
+<form asp-controller="app" asp-action="UploadFile" method="post"
+      enctype="multipart/form-data">
+
+    <input type="file" name="file" />
+    <button type="submit">Upload PDF</button>
+    <br />
+    <span>@ViewBag.Message  @ViewBag.fileName</span>
+</form>
+
+@{
+}
