@@ -12,6 +12,11 @@
         <button>Download Document</button>
         <br />
 
+        <div>
+            <div></div>
+            <div></div>
+        </div>
+        <embed src="@ViewBag.pdfURL" width="800" height="1131" />
         <form asp-controller="App" asp-action="ConnectPen">
             <label>Connect</label>
             <button id="connectButton" type="submit">Connect SmartPen</button>
@@ -25,11 +30,12 @@
             <button type="submit">ClearImage</button>
         </form>
 
+
         <form asp-controller="App" asp-action="DrawSignature">
             <label>Draw Signature</label>
             <button type="submit">Draw Signature</button>
         </form>
-        
+
         <br />
         <img id="sig" src="~/img/pen/web.png">
 

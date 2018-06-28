@@ -20,7 +20,11 @@ namespace SmartSignWebApp.ViewModels
         [JsonProperty(PropertyName = "id")]
         public string Id { get; set; }
 
-        public string docURL { get; set; }
+        [Required]
+        public string DocGuid { get; set; }
+
+        [Required]
+        public string DocName { get; set; }
 
         [Required (ErrorMessage = "The First Name field is required")]
         [MinLength(2, ErrorMessage = "Must be at least 2 characters")]

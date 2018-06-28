@@ -17,6 +17,10 @@ using Microsoft.Azure.Documents;
 using System.Net;
 using Newtonsoft.Json;
 
+using Microsoft.Azure;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
+
 namespace SmartSignWebApp.Controllers
 {
     public class AppController : Controller
@@ -54,7 +58,10 @@ namespace SmartSignWebApp.Controllers
          * as the action, in the views folder.
          */
         public IActionResult Index() {
-            ViewBag.Title = "Home";
+            CloudBlobContainer container = GetCloudBlobContainer();
+            ViewBag.Success = container.CreateIfNotExistsAsync().Result;
+            System.Console.WriteLine(ViewBag.Success);
+            ViewBag.Title = "Home ";
             return View();
         }
 
@@ -91,8 +98,8 @@ namespace SmartSignWebApp.Controllers
             //await ReadDocumentIfExists(DatabaseName, CollectionName, model);
             Document storedModel = await _client.ReadDocumentAsync(UriFactory.CreateDocumentUri(DatabaseName, CollectionName, model.Id.ToString()));
             model = JsonConvert.DeserializeObject<AdminViewModel>(storedModel.ToString());
-
-            ViewBag.Title = "Welcome "+model.fName;
+            ViewBag.pdfURL = GetBlobSasUri(model.DocGuid);
+            ViewBag.Title = "Welcome "+model.fName +" you are required to sign " +model.DocName;
             return View();
 
         }
@@ -152,11 +159,19 @@ namespace SmartSignWebApp.Controllers
             else {
                 ViewBag.UploadStatus = "UploadSuccess";
                 ViewBag.Message = "Upload Accepted";
-            
-
+                
+                /*
                 string fileName = Path.GetFileName(file.FileName);
-                ViewBag.fileName = fileName;
-                System.Console.WriteLine(fileName);
+                ViewBag.documentName = fileName;
+                var blobName = UploadBlob(file);
+                */
+
+
+                ViewBag.docName = Path.GetFileName(file.FileName);
+                ViewBag.docGuid = UploadBlob(file);
+                Console.WriteLine("File name: " + ViewBag.docName);
+                Console.WriteLine("Document ID: " + ViewBag.docGuid);
+                /*
                 var path = Path.Combine(
                             Directory.GetCurrentDirectory(), "wwwroot/uploads/"+fileName
                            );
@@ -165,6 +180,7 @@ namespace SmartSignWebApp.Controllers
                 {
                     await file.CopyToAsync(stream);
                 }
+                */
 
                 return View("Admin");//RedirectToAction("Admin");
             }
@@ -226,6 +242,71 @@ namespace SmartSignWebApp.Controllers
                     throw;
                 }
             }
+        }
+
+        private CloudBlobContainer GetCloudBlobContainer()
+        {
+            //Environment.GetEnvironmentVariable("BLOB_CONNECTION_STRING");
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
+                Environment.GetEnvironmentVariable("BLOB_CONNECTION_STRING"));
+            //CloudConfigurationManager.GetSetting("<storageaccountname>_AzureStorageConnectionString"));
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            CloudBlobContainer container = blobClient.GetContainerReference("pdf-container");
+            return container;
+        }
+
+
+        public string UploadBlob(IFormFile file)
+        {
+            var blobName = Guid.NewGuid().ToString() + Path.GetFileName(file.FileName);
+            CloudBlobContainer container = GetCloudBlobContainer();
+            CloudBlockBlob blob = container.GetBlockBlobReference(blobName);
+
+            //using (var fileStream = System.IO.File.OpenRead(@"<file-to-upload>"))
+            using (var fileStream = file.OpenReadStream())
+            {
+                blob.UploadFromStreamAsync(fileStream).Wait();
+            }
+
+            return blobName;
+        }
+
+
+
+        public string GetBlobSasUri(string blobname)
+        {
+            try
+            {
+                //CloudStorageAccount storageAccount = CloudStorageAccount.Parse(ConfigurationManager.AppSettings.Get("StorageConnectionString"));
+
+                //CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+
+                CloudBlobContainer container = GetCloudBlobContainer();
+                    // blobClient.GetContainerReference(containername);
+                //Get a reference to a blob within the container.
+                CloudBlockBlob blob = container.GetBlockBlobReference(blobname);
+
+                //Set the expiry time and permissions for the blob.
+                //In this case the start time is specified as a few minutes in the past, to mitigate clock skew.
+                //The shared access signature will be valid immediately.
+                SharedAccessBlobPolicy sasConstraints = new SharedAccessBlobPolicy();
+                sasConstraints.SharedAccessStartTime = DateTime.UtcNow.AddMinutes(-5);
+                sasConstraints.SharedAccessExpiryTime = DateTime.UtcNow.AddHours(24);
+                sasConstraints.Permissions = SharedAccessBlobPermissions.Read | SharedAccessBlobPermissions.Write;
+
+                //Generate the shared access signature on the blob, setting the constraints directly on the signature.
+                string sasBlobToken = blob.GetSharedAccessSignature(sasConstraints);
+
+                //Return the URI string for the container, including the SAS token.
+                return blob.Uri + sasBlobToken;
+            }
+            catch (Exception e)
+            {
+                //Logger.Error(e.Message, e);
+                throw;
+
+            }
+
         }
 
 

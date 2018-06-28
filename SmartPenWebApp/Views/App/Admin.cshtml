@@ -27,20 +27,31 @@
 
 
         @*File Upload
-            <form asp-controller="app" asp-action="UploadFile" method="post"
-                  enctype="multipart/form-data">
+        <form asp-controller="app" asp-action="UploadFile" method="post"
+              enctype="multipart/form-data">
 
-                <input type="file" name="file" />
-                <button type="submit">Upload PDF</button>
-                <br />
-                <span>@ViewBag.Message</span>
-            </form>
+            <input type="file" name="file" />
+            <button type="submit">Upload PDF</button>
+            <br />
+            <span>@ViewBag.Message</span>
+        </form>
 
-            @*File Upload*@
+        @*File Upload*@
 
-
+        
+        
         <form method="post" asp-controller="app" asp-action="AdminAsync">
             <div asp-validation-summary="ModelOnly"></div>
+            <div class="form-group">
+                <label asp-for="DocName">Document Name:</label>
+                <input asp-for="DocName" type="text" value="@ViewBag.docName" class="form-control" />
+                <span asp-validation-for="DocName"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DocGuid">Document ID:</label>
+                <input asp-for="DocGuid" type="text" value="@ViewBag.docGuid" class="form-control" />
+                <span asp-validation-for="DocGuid"></span>
+            </div>
 
             <div class="form-group">
                 <label asp-for="fName">First Name:</label>

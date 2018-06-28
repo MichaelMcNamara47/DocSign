@@ -25,8 +25,8 @@ namespace SmartSignWebApp.PenConnector
 
         public PressureFilter mFilter;
 
-        static int w = 400;
-        static int h = 400;
+        static int w = 800;
+        static int h = 1131;
         private Bitmap mBitmap;// = new Bitmap(w, h);
 
         public Signature mSig { get; set; }
