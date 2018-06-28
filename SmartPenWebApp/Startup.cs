@@ -13,10 +13,20 @@ using SmartSignWebApp.Services;
 using Neosmartpen.Net.Protocol.v1;
 using SmartSignWebApp.PenConnector;
 
+using Microsoft.Azure.Documents;
+using Microsoft.Azure.Documents.Client;
+
 namespace SmartPenWebApp
 {
     public class Startup
     {
+        private readonly string EndpointUri = Environment.GetEnvironmentVariable("ENDPOINTURI");
+        private readonly string PrimaryKey = Environment.GetEnvironmentVariable("PRIMARYKEY");
+        private readonly string DatabaseName = Environment.GetEnvironmentVariable("DATABASEID");
+        private readonly string CollectionName = Environment.GetEnvironmentVariable("COLLECTIONID");
+
+
+        private DocumentClient client;
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
@@ -26,6 +36,11 @@ namespace SmartPenWebApp
             /*
              Service for file upload (using IFileProvider
              */
+            client = new DocumentClient(new Uri(EndpointUri), PrimaryKey);
+            this.client.CreateDatabaseIfNotExistsAsync(new Database { Id = DatabaseName });
+            this.client.CreateDocumentCollectionIfNotExistsAsync(UriFactory.CreateDatabaseUri(DatabaseName), new DocumentCollection { Id = CollectionName });
+
+            services.AddSingleton(client);
             services.AddSingleton<IFileProvider>(
                 new PhysicalFileProvider(
                     Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")));

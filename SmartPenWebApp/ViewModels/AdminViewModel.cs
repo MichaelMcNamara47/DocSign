@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -16,7 +17,8 @@ namespace SmartSignWebApp.ViewModels
          ?Sever side validation?
          Required: Data annotations  
         */
-
+        [JsonProperty(PropertyName = "id")]
+        public string Id { get; set; }
 
         public string docURL { get; set; }
 
@@ -33,7 +35,12 @@ namespace SmartSignWebApp.ViewModels
         public string email { get; set; }
         [MaxLength(1000, ErrorMessage = "Enter a short message, less than 1000 characters")]
         public string message { get; set; }
-        
+
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
+
         /*Doesnt work, would have been nice
          public File document { get; set; }
          */

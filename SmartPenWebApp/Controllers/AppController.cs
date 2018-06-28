@@ -12,8 +12,10 @@ using System.Threading.Tasks;
 
 using Neosmartpen.Net.Protocol.v1;
 using SmartSignWebApp.PenConnector;
-
-
+using Microsoft.Azure.Documents.Client;
+using Microsoft.Azure.Documents;
+using System.Net;
+using Newtonsoft.Json;
 
 namespace SmartSignWebApp.Controllers
 {
@@ -22,14 +24,20 @@ namespace SmartSignWebApp.Controllers
         private readonly IMailService _mailService;
         ////public static PenConnector.PenConnector _penConnector { get; set; }
         private readonly PenConnector.PenConnector _penConnector;
+        private readonly DocumentClient _client;
+
+        private readonly string DatabaseName = Environment.GetEnvironmentVariable("DATABASEID");
+        private readonly string CollectionName = Environment.GetEnvironmentVariable("COLLECTIONID");
+        private AdminViewModel model { get; set; }
 
         //hosting env for paths
         private IHostingEnvironment _hostingEnvironment;
 
         /* Use a constructor to inject the services needed
          * */
-        public AppController(IMailService mailService, IHostingEnvironment environment, PenCommV1Callbacks penConnector)
+        public AppController(IMailService mailService, IHostingEnvironment environment, PenCommV1Callbacks penConnector, DocumentClient client)
         {
+            _client = client;
             _penConnector = penConnector as PenConnector.PenConnector;
             _penConnector.ClearImage();
             _hostingEnvironment = environment;
@@ -58,7 +66,7 @@ namespace SmartSignWebApp.Controllers
         }
 
         [HttpPost]
-        public IActionResult Admin(AdminViewModel model)
+        public async Task<IActionResult> AdminAsync(AdminViewModel model)
         {
             ViewBag.Title = "Admin";
             /*Validation:
@@ -66,19 +74,27 @@ namespace SmartSignWebApp.Controllers
              */
             if (ModelState.IsValid) {
                 //Create record              
+                await CreateDocumentIfNotExists(DatabaseName, CollectionName, model);
+                model.message += "Your document link is: http://localhost:8888/app/Client/?" + model.Id;
                 _mailService.SendModel(model);
                 ViewBag.UserMessage = "Document sent";
                 ModelState.Clear();
             }
             ViewBag.UploadStatus = "Upload";
-            return View();
+            return RedirectToAction("Admin");
         }
 
-        public IActionResult Client()
+        public async Task<IActionResult> Client()
         {
-            ViewBag.Title = "Client";
+            model = new AdminViewModel();
+            model.Id = Request.QueryString.ToString().Substring(1);
+            //await ReadDocumentIfExists(DatabaseName, CollectionName, model);
+            Document storedModel = await _client.ReadDocumentAsync(UriFactory.CreateDocumentUri(DatabaseName, CollectionName, model.Id.ToString()));
+            model = JsonConvert.DeserializeObject<AdminViewModel>(storedModel.ToString());
+
+            ViewBag.Title = "Welcome "+model.fName;
             return View();
-            
+
         }
 
         public IActionResult Search()
@@ -154,6 +170,63 @@ namespace SmartSignWebApp.Controllers
             }
         }
 
+        private async Task CreateDocumentIfNotExists(string databaseName, string collectionName, AdminViewModel model)
+        {
+            try
+            {
+                if (model.Id == null)
+                {
+                    // Check if document already exists
+                    await _client.ReadDocumentAsync(UriFactory.CreateDocumentUri(databaseName, collectionName, "null model is a new model"));//model.Id.ToString()));
+                    Console.WriteLine("Found Model {0}", model.Id);
+                }
+                else {
+                    // Check if document already exists
+                    await _client.ReadDocumentAsync(UriFactory.CreateDocumentUri(databaseName, collectionName, model.Id.ToString()));//model.Id.ToString()));
+                    Console.WriteLine("Found Model {0}", model.Id);
+                }
+            }
+            catch (DocumentClientException de)
+            {
+                if (de.StatusCode == HttpStatusCode.NotFound)
+                {
+                    // Create document if not found
+                    Document storedModel = await _client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(databaseName, collectionName), model);
+                    model.Id = storedModel.Id;
+                    Console.WriteLine("Created Model {0}", model.Id);
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
+
+        private async Task ReadDocumentIfExists(string databaseName, string collectionName, AdminViewModel model)
+        {
+            try
+            {
+                // Check if document already exists
+                Document storedModel = await _client.ReadDocumentAsync(UriFactory.CreateDocumentUri(databaseName, collectionName, model.Id.ToString()));//model.Id.ToString()));
+                model = JsonConvert.DeserializeObject<AdminViewModel>(storedModel.ToString());
+                Console.WriteLine("Found Model {0}", model.Id);
+
+            }
+            catch (DocumentClientException de)
+            {
+                if (de.StatusCode == HttpStatusCode.NotFound)
+                {
+                    // Create document if not found
+                    Document storedModel = await _client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(databaseName, collectionName), model);
+                    model.Id = storedModel.Id;
+                    Console.WriteLine("Created Model {0}", model.Id);
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
 
 
     }
