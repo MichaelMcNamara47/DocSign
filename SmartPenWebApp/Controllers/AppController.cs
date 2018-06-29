@@ -82,7 +82,7 @@ namespace SmartSignWebApp.Controllers
             if (ModelState.IsValid) {
                 //Create record              
                 await CreateDocumentIfNotExists(DatabaseName, CollectionName, model);
-                model.message += "Your document link is: http://localhost:8888/app/Client/?" + model.Id;
+                //model.message += "Your document link is: http://localhost:8888/app/Client/?" + model.Id;
                 _mailService.SendModel(model);
                 ViewBag.UserMessage = "Document sent";
                 ModelState.Clear();
@@ -94,11 +94,13 @@ namespace SmartSignWebApp.Controllers
         public async Task<IActionResult> Client()
         {
             model = new AdminViewModel();
+            Console.WriteLine(Request.QueryString.ToString());
             model.Id = Request.QueryString.ToString().Substring(1);
             //await ReadDocumentIfExists(DatabaseName, CollectionName, model);
             Document storedModel = await _client.ReadDocumentAsync(UriFactory.CreateDocumentUri(DatabaseName, CollectionName, model.Id.ToString()));
             model = JsonConvert.DeserializeObject<AdminViewModel>(storedModel.ToString());
             ViewBag.pdfURL = GetBlobSasUri(model.DocGuid);
+            ViewBag.Id = model.Id;
             ViewBag.Title = "Welcome "+model.fName +" you are required to sign " +model.DocName;
             return View();
 
@@ -137,7 +139,9 @@ namespace SmartSignWebApp.Controllers
             }
 
             ViewBag.Title = "Clearing Image...";
-            return RedirectToAction("Client");
+            ViewBag.Id = Request.QueryString.ToString();
+            return View("Client");
+            
         }
         //Start of file upload methods
         [HttpPost]

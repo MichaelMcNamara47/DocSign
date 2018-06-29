@@ -3,10 +3,12 @@
 //function refreshSig() {
 //    $("#sig").attr("src", srcName + '?' + Math.random());
 //    console.log("refreshing");
-//}
 
+//  $("#sig").attr("src", $("#sig").attr("src") + '?' + Math.random());
+//}
+    var source = $("#sig").attr("src");
 function refreshSig() {
-    $("#sig").attr("src", $("#sig").attr("src") + '?' + Math.random());
+    $("#sig").attr("src", source + '?' + Math.random());
     console.log("refreshing");
 }
 

@@ -25,8 +25,9 @@ namespace SmartSignWebApp.PenConnector
 
         public PressureFilter mFilter;
 
-        static int w = 800;
-        static int h = 1131;
+        //a4 600dpi 4960px x 7016px
+        static int w = 800;//4960; //800;
+        static int h = 1131;//7016;//1131;
         private Bitmap mBitmap;// = new Bitmap(w, h);
 
         public Signature mSig { get; set; }
@@ -212,16 +213,20 @@ namespace SmartSignWebApp.PenConnector
 
         public void onReceiveDot(IPenComm sender, Dot dot)
         {
-            Debug.WriteLine("onReceiveDot...\n");
-            Debug.WriteLine("Dot...\n"
+            //Debug.WriteLine("onReceiveDot...\n");
+            //Debug.WriteLine("Dot...\n"
 
-                + "\t Timestamp:" + dot.Timestamp
+            //    + "\t Timestamp:" + dot.Timestamp
 
-                + "\t DotType:" + dot.DotType
+            //    + "\t DotType:" + dot.DotType
 
-                );
-            //onTarget(dot);
+            //    );
+            ////onTarget(dot);
             ProcessDot(dot);
+        }
+
+        public void printDot(Dot dot) {
+            Debug.WriteLine("Type:"+dot.DotType + "\nX=" + dot.X + "\t Y=" + dot.Y + "\nfx=" + dot.Fx + "\tfy=" + dot.Fy);
         }
 
         private void ProcessDot(Dot dot)
@@ -234,6 +239,7 @@ namespace SmartSignWebApp.PenConnector
             {
                 mStroke = new Stroke(dot.Section, dot.Owner, dot.Note, dot.Page);
                 mStroke.Add(dot);
+                printDot(dot);
             }
             else if (dot.DotType == DotTypes.PEN_MOVE)
             {
@@ -242,7 +248,7 @@ namespace SmartSignWebApp.PenConnector
             else if (dot.DotType == DotTypes.PEN_UP)
             {
                 mStroke.Add(dot);
-
+                
                 //DrawStroke(mStroke);
 
                 mSig.Add(mStroke);
@@ -263,23 +269,80 @@ namespace SmartSignWebApp.PenConnector
 
         private void DrawStroke(Stroke stroke)
         {
-         
 
-            float qx = 88.88f;
-            float qy = 125.70f;
-            int dx = (int)((5.52 * w) / qx);
-            int dy = (int)((5.41 * h) / qy);
-            Renderer.draw(mBitmap, stroke, (float)(w / qx), (float)(h / qy), -dx, -dy, 1, Color.FromArgb(200, Color.Blue));
-
-            
+            float qx = 91f; //88.88f;
+            float qy = 119.5f;
+            int dx = 1;// 56;// (int)((1 * w) / qx);    //offset x
+            int dy = -6;// 56;//(int)((1 * h) / qy);   //offset y
+            float scalex = (float)(w / qx);
+            float scaley = (float)(h / qy);
             /*
-            mBitmap.Save(System.IO.Path.Combine(_hostingEnvironment.WebRootPath, "web.png"));
-            mBitmap.Save(@"C:\Users\Uver\Documents\NUIG\Semester 2\Project\Images\web.jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
-            */
+             * Dot.X, Dot.Y Coordinates of our NCode cell.( NCode's cell size is 2.371mm )
+             * Dot.Fx, Dot.Fy It is fractional part of NCode Coordinates. ( maximum value is 100 )
+             * How to get millimeter unit from NCode unit ( Dot.X + Dot.Fx x 0.01) x 2.371 = millimeter unit 
+             * 
+             * A4 210mm x 297mm
+             * 
+             * ------------------
+             * (210 / 600) * 56 = 19.6
+             * (297 / 600) * 56 = 27.72
+             * ------------------
+             * (83/600
+             * 
+             * ------------------
+             * //  609 Idea Pad ncu sizes: DX:5.52, DY:16.10, Width:88.88 Height:125.65
+                    int dx = (int)((5.52 * mWidth) / 88.88);
+                    int dy = (int)((16.10 * mHeight) / 125.65);
+
+                        float qx = 88.88f;
+            float qy = 125.65f;
+            int dx = (int)((5.52 * w) / qx);    //offset x
+            int dy = (int)((16.10 * h) / qy);   //offset y
+            float scalex = (float)(w / qx);
+            float scaley = (float)(h / qy);
+             * ------------------
+             * 
+             * 
+             * Scale = 72 / 600 * 56 = 6.72
+             * nproj size /scale = ncode size
+             * ex) 500 height in nproj file, 500/Scale = 500/6.72 = 74.4 (ncode unit)
+             * 
+             * Ref:
+             * ● 2.37mm = (56 pixels / 600 dpi) * 25.4
+             * ● On 1200 DPI, output was designed to maintain the same cell size (2.37 mm)
+             * ● Therefore, the calculation of cell coordinates received from a Pen will use the same formula for both 600 DPI and 1200 DPI.
+             */
+            /*
+             * 
+             float qx = 88.88f;
+             float qy = 125.70f;
+             int dx = (int)((5.52 * w) / qx);
+             int dy = (int)((5.41 * h) / qy);
+                                dx      dy      width   heigth
+            601 Pocket Note     5.40    5.45    35.26   62.59 
+             */
+
+
+            Renderer.draw(
+                   mBitmap,                        //bitmap
+                   stroke,                         //stroke
+                   (float)(w / qx),                //scale x
+                   (float)(h / qy),                //scale y
+                   -dx,                            //offset x
+                   -dy,                            //offset y
+                   1,                              //width
+                   Color.FromArgb(200, Color.Blue) //color
+                   );
+            
+
+               /*
+               mBitmap.Save(System.IO.Path.Combine(_hostingEnvironment.WebRootPath, "web.png"));
+               mBitmap.Save(@"C:\Users\Uver\Documents\NUIG\Semester 2\Project\Images\web.jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
+               */
             //var image = pictureBox1.Image = mBitmap;
             //added
             //pictureBox1.Image.Save(@"C:\Users\Uver\Documents\NUIG\Semester 2\Project\Images\save1.png", System.Drawing.Imaging.ImageFormat.Jpeg);
-            
+
             /*
             this.Invoke(new MethodInvoker(delegate ()
             {
@@ -299,8 +362,6 @@ namespace SmartSignWebApp.PenConnector
                     //int dx = (int)( ( 5.52 * mWidth ) / 63.46 );
                     //int dy = (int)( ( 5.41 * mHeight ) / 88.88 );
                     //
-
-                    Renderer.draw(mBitmap, stroke, (float)(mWidth / qx), (float)(mHeight / qy), -dx, -dy, 1, Color.FromArgb(200, Color.Blue));
                     //original
                     //Renderer.draw(mBitmap, stroke, (float)(mWidth / 63.46f), (float)(mHeight / 88.88f), -dx, -dy, 1, Color.FromArgb(200, Color.Blue));
                     

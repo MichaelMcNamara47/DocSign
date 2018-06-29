@@ -5,6 +5,15 @@
 @section scripts {
     <script src="~/js/client.js"></script>
 }
+@*
+    <div style="position: relative; height:1131px; width:800px; ">
+        <div id="backdrop" style="z-index: 1; position: absolute; top: 0px; left: 0px;">
+            <embed src="@ViewBag.pdfURL" width="800" height="1131" type='application/pdf' />
+        </div>
+        <div id="curtain" style="z-index: 2; position: absolute; top: 0px; left: 0px; background-image:url(/curtain.png);background-position:100px 200px;">
+            <div style="z-index:1001"><img id="sig" src="~/img/pen/web.png"></div>
+        </div>
+    </div>*@
 
 <div class="well">
     <div>
@@ -12,20 +21,22 @@
         <button>Download Document</button>
         <br />
 
-        <div>
-            <div></div>
-            <div></div>
-        </div>
-        <embed src="@ViewBag.pdfURL" width="800" height="1131" />
+
+
+        @*
+            <div style="z-index:1000"><embed src="@ViewBag.pdfURL" width="800" height="1131" /></div>
+            <div style="z-index:1001"><img id="sig" src="~/img/pen/web.png"></div>*@
+
+
         <form asp-controller="App" asp-action="ConnectPen">
             <label>Connect</label>
             <button id="connectButton" type="submit">Connect SmartPen</button>
         </form>
         @*<form asp-controller="Pen" asp-action="DisconnectPen">
-        <label>Disconnect</label>
-        <button id="disconnectButton" type="submit">Disconnect SmartPen</button>
-        form>*@
-        <form asp-controller="App" asp-action="ClearImage">
+            <label>Disconnect</label>
+            <button id="disconnectButton" type="submit">Disconnect SmartPen</button>
+            form>*@
+        <form asp-controller="App" asp-action="ClearImage/?@ViewBag.Id">
             <label>ClearImage</label>
             <button type="submit">ClearImage</button>
         </form>
@@ -37,10 +48,24 @@
         </form>
 
         <br />
-        <img id="sig" src="~/img/pen/web.png">
+
 
         <br />
         <label>Sign Document</label>
         <button>Sign</button>
     </div>
 </div>
+
+@*<div style="position:absolute;height:100px;width:100px;background-color:Yellow;" onclick="showHideElement('Iframe1');">click me</div>
+    <div style="position:absolute;z-index:100;background-color:Green;height:100px;width:100px;margin-left:200px;"></div>
+*@
+<div style="position:absolute;z-index:20;margin-left:0px;">
+    <img id="sig" src="~/img/pen/web.png" style="border:0px solid black">
+    <iframe visible="true" id="Iframe1" height="100" width="100" runat="server" frameborder="0" scrolling="auto"></iframe>
+</div>
+
+<div style="position:absolute;z-index:10;margin-left:0px;">
+    <iframe visible="true" id="ipdf" src="@ViewBag.pdfURL" width="800" height="1131" runat="server" frameborder="0" scrolling="auto"></iframe>
+</div>
+
+
