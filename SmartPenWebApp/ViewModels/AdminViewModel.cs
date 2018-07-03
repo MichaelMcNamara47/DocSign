@@ -20,9 +20,11 @@ namespace SmartSignWebApp.ViewModels
         [JsonProperty(PropertyName = "id")]
         public string Id { get; set; }
 
+        public bool isSigned { get; set; }
         [Required]
         public string DocGuid { get; set; }
 
+        public string SignedDocGuid { get; set; }
         [Required]
         public string DocName { get; set; }
 

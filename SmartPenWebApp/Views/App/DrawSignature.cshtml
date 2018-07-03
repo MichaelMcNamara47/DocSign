@@ -1,0 +1,24 @@
+﻿@*{
+        //ViewBag.Title = "Client";
+    }*@
+
+@section scripts {
+    <script src="~/js/client.js"></script>
+}
+
+<div class="well">
+    <div>
+        <label>Download</label>
+        <a href="@ViewBag.pdfURL" download="@ViewBag.DocName">Download</a>
+        <br />
+
+
+    </div>
+</div>
+
+
+<div style="position:absolute;z-index:10;margin-left:0px;">
+    <iframe visible="true" id="ipdf" src="@ViewBag.pdfURL" width="800" height="1131" runat="server" frameborder="0" scrolling="auto"></iframe>
+</div>
+
+

@@ -38,15 +38,15 @@ namespace SmartSignWebApp.PenConnector
         public PenConnector(IHostingEnvironment hostingEnvironment)
         {
             _hostingEnvironment = hostingEnvironment;
-            initImage();
             mSig = new Signature();
+            mBitmap = new Bitmap(w, h); 
         }
 
         internal void DrawSignature()
         {
             mSig.ForEach(delegate (Stroke s) {
                 DrawStroke(s);
-                Debug.WriteLine(s);
+                Console.WriteLine(s);
             });
             saveImage();
         }
@@ -110,37 +110,20 @@ namespace SmartSignWebApp.PenConnector
 
         internal void ClearImage()
         {
-            initImage();
+            Graphics g = Graphics.FromImage(mBitmap);
+            g.Clear(Color.Transparent);
+            g.Dispose();
             saveImage();
         }
         internal void ClearSignature() {
 
             if (mSig != null) { mSig.Clear(); }
+
         }
-
-
-
 
         private void saveImage()
         {
             mBitmap.Save(System.IO.Path.Combine(_hostingEnvironment.WebRootPath, "img/pen/web.png"));
-            //mBitmap.Save(System.IO.Path.Combine(_hostingEnvironment.WebRootPath, "web.png"));
-            //mBitmap.Save(@"C:\Users\Uver\Documents\NUIG\Semester 2\Project\Images\web.jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
-        }
-
-        private void initImage()
-        {
-            if (mBitmap != null) {
-                mBitmap.Dispose();
-            }
-            mBitmap = null;
-
-            mBitmap = new Bitmap(w, h);
-            
-            Graphics g = Graphics.FromImage(mBitmap);
-            g.Clear(Color.Transparent);
-            g.Dispose();
-
         }
 
     public void onConnected(IPenComm sender, int maxForce, string firmwareVersion)
@@ -213,15 +196,6 @@ namespace SmartSignWebApp.PenConnector
 
         public void onReceiveDot(IPenComm sender, Dot dot)
         {
-            //Debug.WriteLine("onReceiveDot...\n");
-            //Debug.WriteLine("Dot...\n"
-
-            //    + "\t Timestamp:" + dot.Timestamp
-
-            //    + "\t DotType:" + dot.DotType
-
-            //    );
-            ////onTarget(dot);
             ProcessDot(dot);
         }
 
@@ -269,58 +243,14 @@ namespace SmartSignWebApp.PenConnector
 
         private void DrawStroke(Stroke stroke)
         {
-
+            
             float qx = 91f; //88.88f;
             float qy = 119.5f;
             int dx = 1;// 56;// (int)((1 * w) / qx);    //offset x
             int dy = -6;// 56;//(int)((1 * h) / qy);   //offset y
             float scalex = (float)(w / qx);
             float scaley = (float)(h / qy);
-            /*
-             * Dot.X, Dot.Y Coordinates of our NCode cell.( NCode's cell size is 2.371mm )
-             * Dot.Fx, Dot.Fy It is fractional part of NCode Coordinates. ( maximum value is 100 )
-             * How to get millimeter unit from NCode unit ( Dot.X + Dot.Fx x 0.01) x 2.371 = millimeter unit 
-             * 
-             * A4 210mm x 297mm
-             * 
-             * ------------------
-             * (210 / 600) * 56 = 19.6
-             * (297 / 600) * 56 = 27.72
-             * ------------------
-             * (83/600
-             * 
-             * ------------------
-             * //  609 Idea Pad ncu sizes: DX:5.52, DY:16.10, Width:88.88 Height:125.65
-                    int dx = (int)((5.52 * mWidth) / 88.88);
-                    int dy = (int)((16.10 * mHeight) / 125.65);
 
-                        float qx = 88.88f;
-            float qy = 125.65f;
-            int dx = (int)((5.52 * w) / qx);    //offset x
-            int dy = (int)((16.10 * h) / qy);   //offset y
-            float scalex = (float)(w / qx);
-            float scaley = (float)(h / qy);
-             * ------------------
-             * 
-             * 
-             * Scale = 72 / 600 * 56 = 6.72
-             * nproj size /scale = ncode size
-             * ex) 500 height in nproj file, 500/Scale = 500/6.72 = 74.4 (ncode unit)
-             * 
-             * Ref:
-             * ● 2.37mm = (56 pixels / 600 dpi) * 25.4
-             * ● On 1200 DPI, output was designed to maintain the same cell size (2.37 mm)
-             * ● Therefore, the calculation of cell coordinates received from a Pen will use the same formula for both 600 DPI and 1200 DPI.
-             */
-            /*
-             * 
-             float qx = 88.88f;
-             float qy = 125.70f;
-             int dx = (int)((5.52 * w) / qx);
-             int dy = (int)((5.41 * h) / qy);
-                                dx      dy      width   heigth
-            601 Pocket Note     5.40    5.45    35.26   62.59 
-             */
 
 
             Renderer.draw(
@@ -334,49 +264,6 @@ namespace SmartSignWebApp.PenConnector
                    Color.FromArgb(200, Color.Blue) //color
                    );
             
-
-               /*
-               mBitmap.Save(System.IO.Path.Combine(_hostingEnvironment.WebRootPath, "web.png"));
-               mBitmap.Save(@"C:\Users\Uver\Documents\NUIG\Semester 2\Project\Images\web.jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
-               */
-            //var image = pictureBox1.Image = mBitmap;
-            //added
-            //pictureBox1.Image.Save(@"C:\Users\Uver\Documents\NUIG\Semester 2\Project\Images\save1.png", System.Drawing.Imaging.ImageFormat.Jpeg);
-
-            /*
-            this.Invoke(new MethodInvoker(delegate ()
-            {
-                lock (mDrawLock)
-                {
-                    //614 N_A4 210x297
-                    // A4 Dimensions in inch w8.27 * h11.69
-                    //603 Ring Note Height  5.52  5.41 	63.46 	88.88  (dimensions 150 x 210)
-                    float qx = 88.88f;
-                    float qy = 125.70f;
-                    int dx = (int)((5.52 * mWidth) / qx);
-                    int dy = (int)((5.41 * mHeight) / qy);
-
-
-                    // original
-                    //603 Ring Note Height  5.52  5.41 	63.46 	88.88 
-                    //int dx = (int)( ( 5.52 * mWidth ) / 63.46 );
-                    //int dy = (int)( ( 5.41 * mHeight ) / 88.88 );
-                    //
-                    //original
-                    //Renderer.draw(mBitmap, stroke, (float)(mWidth / 63.46f), (float)(mHeight / 88.88f), -dx, -dy, 1, Color.FromArgb(200, Color.Blue));
-                    
-                    var image = pictureBox1.Image = mBitmap;
-                    //added
-                    pictureBox1.Image.Save(@"C:\Users\Uver\Documents\NUIG\Semester 2\Project\Images\save1.png", System.Drawing.Imaging.ImageFormat.Jpeg);
-                    //Graphics g = Graphics.FromImage(pictureBox1.Image);
-                    //g.Ima.Save(@"C:\Users\Uver\Documents\NUIG\Semester 2\Project\Images\saveGFX.png");
-                    PDFOverlay pdf = new PDFOverlay();
-                    pdf.combine(image);
-
-
-                }
-            }));
-            */
         }
 
         public void onTarget(Dot dot)

@@ -35,11 +35,16 @@ namespace SmartSignWebApp.Services
             var subject = $"Sending To:{model.email} from Sendgrid";
             var to = new EmailAddress("michael.mcnamara@storm.ie", "Signatory");
             var plainTextContent = model.message;
-            var htmlContent = $"<strong>{model.message}</strong>";
+            //var htmlContent = $"<strong>{model.message}</strong>";
+            var htmlContent = $"" +
+                $"<p>Hello {model.fName}, </p>" +
+                $"<p>You are required to sign <a href={"http://localhost:8888/app/Client/?"}{model.Id} >{model.DocName}" +
+                $"</p>";
             var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
             var response = await client.SendEmailAsync(msg);
             logger.LogInformation("Status Code: "+response.StatusCode.ToString());
-            
+            //"Your document link is: http://localhost:8888/app/Client/?" + model.Id;
+
         }
 
         public void SendMessage(string to, string subject, string body)

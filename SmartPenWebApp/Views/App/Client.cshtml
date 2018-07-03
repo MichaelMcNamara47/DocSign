@@ -18,41 +18,37 @@
 <div class="well">
     <div>
         <label>Download</label>
-        <button>Download Document</button>
+        <a href="@ViewBag.pdfURL" download="@ViewBag.DocName">Download</a>
         <br />
 
 
 
         @*
-            <div style="z-index:1000"><embed src="@ViewBag.pdfURL" width="800" height="1131" /></div>
-            <div style="z-index:1001"><img id="sig" src="~/img/pen/web.png"></div>*@
+        <div style="z-index:1000"><embed src="@ViewBag.pdfURL" width="800" height="1131" /></div>
+        <div style="z-index:1001"><img id="sig" src="~/img/pen/web.png"></div>*@
 
 
-        <form asp-controller="App" asp-action="ConnectPen">
+        <form asp-controller="App" asp-action="ConnectPen/@ViewBag.Id">
             <label>Connect</label>
             <button id="connectButton" type="submit">Connect SmartPen</button>
         </form>
         @*<form asp-controller="Pen" asp-action="DisconnectPen">
-            <label>Disconnect</label>
-            <button id="disconnectButton" type="submit">Disconnect SmartPen</button>
-            form>*@
+        <label>Disconnect</label>
+        <button id="disconnectButton" type="submit">Disconnect SmartPen</button>
+        form>*@
         <form asp-controller="App" asp-action="ClearImage/?@ViewBag.Id">
             <label>ClearImage</label>
             <button type="submit">ClearImage</button>
         </form>
 
 
-        <form asp-controller="App" asp-action="DrawSignature">
-            <label>Draw Signature</label>
-            <button type="submit">Draw Signature</button>
+        <form asp-controller="App" asp-action="DrawSignature/@ViewBag.Id">
+            <label>Sign Document</label>
+            <button type="submit">Sign</button>
         </form>
 
         <br />
 
-
-        <br />
-        <label>Sign Document</label>
-        <button>Sign</button>
     </div>
 </div>
 
