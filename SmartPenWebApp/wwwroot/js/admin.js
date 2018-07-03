@@ -1,5 +1,5 @@
 ﻿$(document).ready(function () {
-
+    
     if (uploadedFile) {
         $(".formToggle").each(function (index) {
             $(this).prop("Disabled", "false");

@@ -1,3 +1,89 @@
-﻿@*{
-    ViewBag.Title = "Search";
-}*@
+﻿@model IEnumerable<SmartSignWebApp.ViewModels.AdminViewModel>
+
+@{
+    ViewData["Title"] = "Search";
+}
+
+<h2>Search</h2>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.isSigned)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DocGuid)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SignedDocGuid)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DocName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.fName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.lName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.notifyEmail)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.signatoryEmail)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.message)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.isSigned)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DocGuid)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SignedDocGuid)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DocName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.fName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.lName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.notifyEmail)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.signatoryEmail)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.message)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

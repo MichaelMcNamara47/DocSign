@@ -86,7 +86,7 @@ namespace SmartSignWebApp.Controllers
                 model.isSigned = false;
                 await CreateDocumentIfNotExists(DatabaseName, CollectionName, model);
                 //model.message += "Your document link is: http://localhost:8888/app/Client/?" + model.Id;
-                _mailService.SendModel(model);
+                _mailService.SendNewDocument(model, _hostingEnvironment );
                 ViewBag.UserMessage = "Document sent";
                 ModelState.Clear();
             }
@@ -98,7 +98,8 @@ namespace SmartSignWebApp.Controllers
         {
             model = new AdminViewModel();
             Console.WriteLine(Request.QueryString.ToString());
-            model.Id = Request.QueryString.ToString().Substring(1);
+            model.Id = Request.Path.ToString().Substring(Request.Path.ToString().LastIndexOf('/') + 1);
+            //model.Id = Request.QueryString.ToString().Substring(1);
             //await ReadDocumentIfExists(DatabaseName, CollectionName, model);
             Document storedModel = await _client.ReadDocumentAsync(UriFactory.CreateDocumentUri(DatabaseName, CollectionName, model.Id.ToString()));
             model = JsonConvert.DeserializeObject<AdminViewModel>(storedModel.ToString());
@@ -118,15 +119,20 @@ namespace SmartSignWebApp.Controllers
             }
         }
 
-        public IActionResult Search()
+        public async Task<IActionResult> Search()
         {
             ViewBag.Title = "Search";
-            return View();
+            model = new AdminViewModel();
+            model.Id = Request.Path.ToString().Substring(Request.Path.ToString().LastIndexOf('/') + 1);
+            Document storedModel = await _client.ReadDocumentAsync(UriFactory.CreateDocumentUri(DatabaseName, CollectionName, model.Id.ToString()));
+            model = JsonConvert.DeserializeObject<AdminViewModel>(storedModel.ToString());
+
+            return View(model);
         }
 
         public async Task<IActionResult> DrawSignature()
         {
-            _penConnector.DrawSignature();
+            //_penConnector.DrawSignature();
             //ViewBag.Id = Request.QueryString.ToString();
 
             model = new AdminViewModel();
@@ -146,6 +152,7 @@ namespace SmartSignWebApp.Controllers
             ViewBag.Title = "Thank you for signing";
             ViewBag.Id = model.Id;
             ViewBag.pdfURL = GetBlobSasUri(model.SignedDocGuid);
+            _mailService.DocumentSigned(model, _hostingEnvironment);
             return View();
         }
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
 using SmartSignWebApp.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,11 @@ namespace SmartSignWebApp.Services
             this.logger = logger;
         }
 
+        public void DocumentSigned(AdminViewModel model, IHostingEnvironment hostingEnvironment)
+        {
+            throw new NotImplementedException();
+        }
+
         public void SendMessage(string to, string subject, string body)
         {
             //Log the message for dummy mail service
@@ -25,6 +31,11 @@ namespace SmartSignWebApp.Services
         }
 
         public void SendModel(AdminViewModel model)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SendNewDocument(AdminViewModel model, IHostingEnvironment hostingEnvironment)
         {
             throw new NotImplementedException();
         }

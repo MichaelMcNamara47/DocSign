@@ -38,7 +38,11 @@ namespace SmartSignWebApp.ViewModels
 
         [Required]
         [EmailAddress]
-        public string email { get; set; }
+        public string notifyEmail { get; set; }
+
+        [Required]
+        [EmailAddress]
+        public string signatoryEmail { get; set; }
         [MaxLength(1000, ErrorMessage = "Enter a short message, less than 1000 characters")]
         public string message { get; set; }
 

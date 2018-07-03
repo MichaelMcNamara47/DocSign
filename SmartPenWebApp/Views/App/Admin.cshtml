@@ -25,31 +25,17 @@
             await Html.RenderPartialAsync(uploadStatus);
         }
 
-
-        @*File Upload
-        <form asp-controller="app" asp-action="UploadFile" method="post"
-              enctype="multipart/form-data">
-
-            <input type="file" name="file" />
-            <button type="submit">Upload PDF</button>
-            <br />
-            <span>@ViewBag.Message</span>
-        </form>
-
-        @*File Upload*@
-
-        
-        
+       
         <form method="post" asp-controller="app" asp-action="AdminAsync">
             <div asp-validation-summary="ModelOnly"></div>
             <div class="form-group">
                 <label asp-for="DocName">Document Name:</label>
-                <input asp-for="DocName" type="text" value="@ViewBag.docName" class="form-control" />
+                <input asp-for="DocName" type="text" value="@ViewBag.docName" class="form-control formDisable" />
                 <span asp-validation-for="DocName"></span>
             </div>
             <div class="form-group">
                 <label asp-for="DocGuid">Document ID:</label>
-                <input asp-for="DocGuid" type="text" value="@ViewBag.docGuid" class="form-control" />
+                <input asp-for="DocGuid" type="text" value="@ViewBag.docGuid" class="form-control formDisable" />
                 <span asp-validation-for="DocGuid"></span>
             </div>
 
@@ -64,19 +50,23 @@
                 <span asp-validation-for="lName"></span>
             </div>
             <div class="form-group">
-                <label asp-for="email">Email:</label>
-                <input asp-for="email" type="email" class="form-control formToggle" />
-                <span asp-validation-for="email"></span>
+                <label ToolTip="The address of the signatory" asp-for="signatoryEmail">Signatory Email:</label>
+                <input ToolTip="The address of the signatory" asp-for="signatoryEmail" type="email" class="form-control formToggle" />
+                <span asp-validation-for="signatoryEmail"></span>
+            </div>
+            <div class="form-group">
+                <label ToolTip="When a document is signed notify this address" asp-for="notifyEmail">Notify Email:</label>
+                <input ToolTip="When a document is signed notify this address" asp-for="notifyEmail" type="email" class="form-control formToggle" />
+                <span asp-validation-for="notifyEmail"></span>
             </div>
 
             <div class="form-group">
-                <label asp-for="message">Message:</label>
+                <label ToolTip="Add an optional message" asp-for="message">Message:</label>
                 <textarea asp-for="message" rows="4" class="form-control formToggle"></textarea>
                 <span asp-validation-for="message"></span>
             </div>
             <div class="form-group">
                 <button type="submit" class="btn btn-primary formToggle"><i class="fa fa-envelope"></i> Send Document</button>
-                <div>@ViewBag.UserMessage</div>
             </div>
         </form>
     </div>
