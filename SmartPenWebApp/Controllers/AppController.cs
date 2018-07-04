@@ -34,7 +34,7 @@ namespace SmartSignWebApp.Controllers
 
         private readonly string DatabaseName = Environment.GetEnvironmentVariable("DATABASEID");
         private readonly string CollectionName = Environment.GetEnvironmentVariable("COLLECTIONID");
-        private AdminViewModel model { get; set; }
+        //private AdminViewModel model { get; set; }
 
         //hosting env for paths
         private IHostingEnvironment _hostingEnvironment;
@@ -84,9 +84,12 @@ namespace SmartSignWebApp.Controllers
             if (ModelState.IsValid) {
                 //Create record  
                 model.isSigned = false;
-                await CreateDocumentIfNotExists(DatabaseName, CollectionName, model);
-                //model.message += "Your document link is: http://localhost:8888/app/Client/?" + model.Id;
-                _mailService.SendNewDocument(model, _hostingEnvironment );
+                _mailService.SendNewDocument(
+                        await DocumentDBRepository<AdminViewModel>.CreateDocumentIfNotExists(model), 
+                        _hostingEnvironment);
+                ;
+                //await CreateDocumentIfNotExists(DatabaseName, CollectionName, model);
+                //_mailService.SendNewDocument(model, _hostingEnvironment );
                 ViewBag.UserMessage = "Document sent";
                 ModelState.Clear();
             }
@@ -96,44 +99,29 @@ namespace SmartSignWebApp.Controllers
 
         public async Task<IActionResult> Client(string id)
         {
-            model = new AdminViewModel();
-            Console.WriteLine(Request.QueryString.ToString());
-            model.Id = id;
-            //model.Id = Request.QueryString.ToString().Substring(1);
-            //await ReadDocumentIfExists(DatabaseName, CollectionName, model);
-            Document storedModel = await _client.ReadDocumentAsync(UriFactory.CreateDocumentUri(DatabaseName, CollectionName, model.Id.ToString()));
-            model = JsonConvert.DeserializeObject<AdminViewModel>(storedModel.ToString());
+            AdminViewModel model = await DocumentDBRepository<AdminViewModel>.GetItemAsync(id);
             ViewBag.DocName = model.DocName;
             ViewBag.Id = model.Id;
             if (!model.isSigned)
             {
-                ViewBag.Title = ""+model.DocName+" Signed By: " + model.fName + " "+ model.lName;
+                ViewBag.Title = model.fName+ " " +model.lName+" you are required to sign: " + model.DocName;
                 ViewBag.pdfURL = GetBlobSasUri(model.DocGuid);
                 return View();
             }
             else
             {
-                ViewBag.Title = "Welcome back " + model.fName + " you have signed " + model.DocName;
+                ViewBag.Title = "Welcome back " + model.fName + ", you have signed " + model.DocName;
                 ViewBag.pdfURL = GetBlobSasUri(model.SignedDocGuid);
                 return View("DrawSignature");
             }
         }
 
-        public async Task<IActionResult> Search()
-        {
-            ViewBag.Title = "Search";
-            model = new AdminViewModel();
-            model.Id = Request.Path.ToString().Substring(Request.Path.ToString().LastIndexOf('/') + 1);
-            Document storedModel = await _client.ReadDocumentAsync(UriFactory.CreateDocumentUri(DatabaseName, CollectionName, model.Id.ToString()));
-            model = JsonConvert.DeserializeObject<AdminViewModel>(storedModel.ToString());
-
-            return View(model);
-        }
 
         public async Task<IActionResult> DrawSignature()
         {
-            model = new AdminViewModel();
-            model.Id = Request.Path.ToString().Substring(Request.Path.ToString().LastIndexOf('/') + 1);
+
+            var id = Request.Path.ToString().Substring(Request.Path.ToString().LastIndexOf('/') + 1);
+            AdminViewModel model = await DocumentDBRepository<AdminViewModel>.GetItemAsync(id);
 
             // _penConnector.DrawSignature();           
             Bitmap tempBitmap = new Bitmap(800, 1131);
@@ -143,13 +131,6 @@ namespace SmartSignWebApp.Controllers
             //
             _penConnector.DrawSignature(model.Id, tempBitmap);
 
-
-            model = new AdminViewModel();
-            model.Id = Request.Path.ToString().Substring(Request.Path.ToString().LastIndexOf('/') + 1);
-            Document storedModel = await _client.ReadDocumentAsync(UriFactory.CreateDocumentUri(DatabaseName, CollectionName, model.Id.ToString()));
-            model = JsonConvert.DeserializeObject<AdminViewModel>(storedModel.ToString());
-
-            //PDFCombine.CombinePdfPng(GetBlobSasUri(model.DocGuid), _hostingEnvironment);
 
             PDFCombine.CombinePdfPng(GetBlobSasUri(model.DocGuid), model.Id, _hostingEnvironment);
 
@@ -161,7 +142,7 @@ namespace SmartSignWebApp.Controllers
             FileStream fs = new FileStream(uploadName, FileMode.Open, FileAccess.Read);
             model.isSigned = true;
             model.SignedDocGuid = UploadBlob(fs, model.DocName);
-            await ReplaceDocument(DatabaseName, CollectionName, model.Id, model);
+            await DocumentDBRepository<AdminViewModel>.UpdateItemAsync(model.Id, model);
             ViewBag.Title = "Thank you for signing";
             ViewBag.Id = model.Id;
             ViewBag.pdfURL = GetBlobSasUri(model.SignedDocGuid);
@@ -171,15 +152,13 @@ namespace SmartSignWebApp.Controllers
 
         public async Task<IActionResult> ConnectPen()
         {           
-            //_penConnector = new PenConnector.PenConnector(_hostingEnvironment);
             _penConnector.connectPen();
             _penConnector.ClearImage();
 
             ViewBag.Title = "Connecting...";
-            model = new AdminViewModel();
-            model.Id = Request.Path.ToString().Substring(Request.Path.ToString().LastIndexOf('/') + 1);
-            Document storedModel = await _client.ReadDocumentAsync(UriFactory.CreateDocumentUri(DatabaseName, CollectionName, model.Id.ToString()));
-            model = JsonConvert.DeserializeObject<AdminViewModel>(storedModel.ToString());
+            var id = Request.Path.ToString().Substring(Request.Path.ToString().LastIndexOf('/') + 1);
+            AdminViewModel model = await DocumentDBRepository<AdminViewModel>.GetItemAsync(id);
+
             ViewBag.pdfURL = GetBlobSasUri(model.DocGuid);
             ViewBag.DocName = model.DocName;
             ViewBag.Id = model.Id;
@@ -197,12 +176,8 @@ namespace SmartSignWebApp.Controllers
                 _penConnector.ClearImage();
             }
 
-            model = new AdminViewModel();
-            var Id = Request.Path.ToString().Substring(Request.Path.ToString().LastIndexOf('/') + 1);
-            Document storedModel = await _client.ReadDocumentAsync(UriFactory.CreateDocumentUri(DatabaseName, CollectionName, model.Id.ToString()));
-            model = JsonConvert.DeserializeObject<AdminViewModel>(storedModel.ToString());
-
-            //AdminViewModel model = await DocumentDBRepository<AdminViewModel>.GetItemAsync(Id);
+            var id = Request.Path.ToString().Substring(Request.Path.ToString().LastIndexOf('/') + 1);
+            AdminViewModel model = await DocumentDBRepository<AdminViewModel>.GetItemAsync(id);
 
             ViewBag.pdfURL = GetBlobSasUri(model.DocGuid);
             ViewBag.Id = model.Id;
@@ -262,77 +237,6 @@ namespace SmartSignWebApp.Controllers
                 */
 
                 return View("Admin");//RedirectToAction("Admin");
-            }
-        }
-
-        private async Task CreateDocumentIfNotExists(string databaseName, string collectionName, AdminViewModel model)
-        {
-            try
-            {
-                if (model.Id == null)
-                {
-                    // Check if document already exists
-                    await _client.ReadDocumentAsync(UriFactory.CreateDocumentUri(databaseName, collectionName, "null model is a new model"));//model.Id.ToString()));
-                    Console.WriteLine("Found Model {0}", model.Id);
-                }
-                else {
-                    // Check if document already exists
-                    await _client.ReadDocumentAsync(UriFactory.CreateDocumentUri(databaseName, collectionName, model.Id.ToString()));//model.Id.ToString()));
-                    Console.WriteLine("Found Model {0}", model.Id);
-                }
-            }
-            catch (DocumentClientException de)
-            {
-                if (de.StatusCode == HttpStatusCode.NotFound)
-                {
-                    // Create document if not found
-                    Document storedModel = await _client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(databaseName, collectionName), model);
-                    model.Id = storedModel.Id;
-                    Console.WriteLine("Created Model {0}", model.Id);
-                }
-                else
-                {
-                    throw;
-                }
-            }
-        }
-
-        private async Task ReadDocumentIfExists(string databaseName, string collectionName, AdminViewModel model)
-        { //jamesirl.com/posts/core-cosmosdb
-            try
-            {
-                // Check if document already exists
-                Document storedModel = await _client.ReadDocumentAsync(UriFactory.CreateDocumentUri(databaseName, collectionName, model.Id.ToString()));//model.Id.ToString()));
-                model = JsonConvert.DeserializeObject<AdminViewModel>(storedModel.ToString());
-                Console.WriteLine("Found Model {0}", model.Id);
-
-            }
-            catch (DocumentClientException de)
-            {
-                if (de.StatusCode == HttpStatusCode.NotFound)
-                {
-                    // Create document if not found
-                    Document storedModel = await _client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(databaseName, collectionName), model);
-                    model.Id = storedModel.Id;
-                    Console.WriteLine("Created Model {0}", model.Id);
-                }
-                else
-                {
-                    throw;
-                }
-            }
-        }
-
-        private async Task ReplaceDocument(string databaseName, string collectionName, string value, AdminViewModel updatedModel)
-        { //jamesirl.com/posts/core-cosmosdb
-            try
-            {
-                await _client.ReplaceDocumentAsync(UriFactory.CreateDocumentUri(databaseName, collectionName, value), updatedModel);
-                Console.WriteLine("Replaced MyModel {0}", value);
-            }
-            catch (DocumentClientException de)
-            {
-                throw;
             }
         }
 

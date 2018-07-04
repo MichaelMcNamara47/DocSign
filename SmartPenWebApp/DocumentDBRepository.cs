@@ -8,6 +8,7 @@ using Microsoft.Azure.Documents.Linq;
 using System.Configuration;
 using System.Linq.Expressions;
 using System.Net;
+using SmartSignWebApp.ViewModels;
 
 namespace SmartSignWebApp
 {
@@ -77,7 +78,7 @@ namespace SmartSignWebApp
             {
                 results.AddRange(await query.ExecuteNextAsync<T>());
             }
-
+            results.Reverse();
             return results;
         }
 
@@ -107,8 +108,31 @@ namespace SmartSignWebApp
             }
         }
 
+        public static async Task<T> CreateDocumentIfNotExists(T model)
+        {
+            try
+            {
+                Document document = await client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(DatabaseId, CollectionId), model);
+                return (T)(dynamic)document;
+            }
+            catch (DocumentClientException e)
+            {
+                if (e.StatusCode == HttpStatusCode.NotFound)
+                {
+                    Console.WriteLine("Cannot find item: \n" + e);
+                    throw e;
+                }
+                else
+                {
+                    throw e;
+                }
+            }
+
+
+        }
+
+
     }
-    
 
 
 }

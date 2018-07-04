@@ -15,11 +15,26 @@ namespace SmartSignWebApp.Controllers
         public async Task<ActionResult> IndexAsync()
         {
             var items = await DocumentDBRepository<AdminViewModel>.GetItemsAsync(
+                //d => d.Id == id
                 d => true
                 );
             ViewBag.Title = "Document List";
             return View(items);
         }
+
+        [HttpPost]
+        [ActionName("Index")]
+        public async Task<ActionResult> SearchIndexAsync(AdminViewModel model)
+        {
+            var items = await DocumentDBRepository<AdminViewModel>.GetItemsAsync(
+                //d => d.Id == id
+                d =>  true
+                //d.fName.ToString().Contains(model.fName) &&
+                );
+            ViewBag.Title = "Document List";
+            return View(items);
+        }
+
         [ActionName("Create")]
         public IActionResult Create()
         {
