@@ -41,6 +41,7 @@
             <button type="submit">ClearImage</button>
         </form>
 
+        @Html.ActionLink("Sign", "DrawSignature", "App", new { id = ViewBag.Id })
 
         <form asp-controller="App" asp-action="DrawSignature/@ViewBag.Id">
             <label>Sign Document</label>

@@ -15,6 +15,8 @@ using SmartSignWebApp.PenConnector;
 
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
+using SmartSignWebApp;
+using SmartSignWebApp.ViewModels;
 
 namespace SmartPenWebApp
 {
@@ -36,6 +38,9 @@ namespace SmartPenWebApp
             /*
              Service for file upload (using IFileProvider
              */
+
+            DocumentDBRepository<AdminViewModel>.Initialize();
+
             client = new DocumentClient(new Uri(EndpointUri), PrimaryKey);
             this.client.CreateDatabaseIfNotExistsAsync(new Database { Id = DatabaseName });
             this.client.CreateDocumentCollectionIfNotExistsAsync(UriFactory.CreateDatabaseUri(DatabaseName), new DocumentCollection { Id = CollectionName });
@@ -66,7 +71,7 @@ namespace SmartPenWebApp
             app.UseDefaultFiles();
             MVC has it's own defaults which replace this
             */
-
+            
             // Serve static html files stored in wwwroot
             app.UseStaticFiles();
 
@@ -79,7 +84,8 @@ namespace SmartPenWebApp
                 cfg.MapRoute(
                     "Default",
                     "/{controller}/{action}/{id?}",
-                    new { controller = "App", Action = "Index" });
+                    //new { controller = "App", Action = "Index" });
+                    new { controller = "Db", action = "Index" });
             });
 
 

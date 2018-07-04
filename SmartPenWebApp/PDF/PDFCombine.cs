@@ -13,14 +13,14 @@ namespace SmartSignWebApp.PDF
 {
     public class PDFCombine
     {
-        public static PdfDocument CombinePdfPng(string pdfIn, IHostingEnvironment _hostingEnvironment)
+        public static PdfDocument CombinePdfPng(string pdfIn, string id, IHostingEnvironment _hostingEnvironment)
         {
 
             /* Get paths of documents to combine */
             string nCodedPdf = pdfIn;
             //string templateDocument = "NDAExample.pdf";
             // todo: string templateDocument = pdfIn;
-            string pngImage = System.IO.Path.Combine(_hostingEnvironment.WebRootPath, "img/pen/web.png");
+            string pngImage = System.IO.Path.Combine(_hostingEnvironment.WebRootPath, "img/pen/"+id+".png");
             // Create the output document
             
             PdfDocument outputDocument = new PdfDocument();
@@ -55,6 +55,61 @@ namespace SmartSignWebApp.PDF
             
             gfx = XGraphics.FromPdfPage(outputDocument.AddPage());
             gfx.DrawImage(formNcode, new XRect(0, 0, 595, 842));
+            using (XImage sig = XImage.FromFile(pngImage)) { 
+                gfx.DrawImage(sig, new XRect(0, 0, 595, 842));
+            }
+            //gfx = XGraphics.FromPdfPage(page1);
+            gfx.Dispose();
+
+
+
+
+            outputDocument.Save(System.IO.Path.Combine(_hostingEnvironment.WebRootPath, "pdf/ImageCombine.pdf"));
+            outputDocument.Dispose();
+            return outputDocument;
+        }
+        public static PdfDocument CombinePdfPng(string pdfIn, IHostingEnvironment _hostingEnvironment)
+        {
+
+            /* Get paths of documents to combine */
+            string nCodedPdf = pdfIn;
+            //string templateDocument = "NDAExample.pdf";
+            // todo: string templateDocument = pdfIn;
+            string pngImage = System.IO.Path.Combine(_hostingEnvironment.WebRootPath, "img/pen/web.png");
+            // Create the output document
+
+            PdfDocument outputDocument = new PdfDocument();
+
+            // Show consecutive pages facing
+            //outputDocument.PageLayout = PdfPageLayout.TwoPageLeft;
+
+            XGraphics gfx;
+            //XRect box;
+
+            // Open the external documents as XPdfForm objects. Such objects are
+            // treated like images. By default the first page of the document is
+            // referenced by a new XPdfForm.
+            using (var client = new WebClient())
+            {
+                client.DownloadFile(pdfIn, System.IO.Path.Combine(_hostingEnvironment.WebRootPath, "pdf/input.pdf"));
+            }
+
+
+            //switched the order - ncode must be written first, document written on top
+
+            //XPdfForm formNcode = XPdfForm.FromFile(fs);//ncode
+            XPdfForm formNcode = XPdfForm.FromFile("input.pdf");//ncode
+
+            //XPdfForm formPngImage = XPdfForm.FromFile(pngImage);
+            Console.WriteLine("formNcode.PixelHeight: " + formNcode.PixelHeight);
+            Console.WriteLine("formNcode.PixelWidth: " + formNcode.PixelWidth);
+
+
+
+            //int count = formTemplate.PageCount;
+
+            gfx = XGraphics.FromPdfPage(outputDocument.AddPage());
+            gfx.DrawImage(formNcode, new XRect(0, 0, 595, 842));
             //gfx.DrawImage(XImage.FromGdiPlusImage(sigBitmap), new XRect(0, 0, 595, 842));
             gfx.DrawImage(XImage.FromFile(pngImage), new XRect(0, 0, 595, 842));
             //gfx = XGraphics.FromPdfPage(page1);
@@ -67,7 +122,6 @@ namespace SmartSignWebApp.PDF
             outputDocument.Dispose();
             return outputDocument;
         }
-
 
 
         public static string CombinePdfPdf(Stream pdfIn, IHostingEnvironment _hostingEnvironment)

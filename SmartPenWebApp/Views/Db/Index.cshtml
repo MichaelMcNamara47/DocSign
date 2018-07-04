@@ -1,0 +1,81 @@
+﻿@model IEnumerable<SmartSignWebApp.ViewModels.AdminViewModel>
+
+@{
+    //ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                First Name @*@Html.DisplayNameFor(model => model.fName)*@
+            </th>
+            <th>
+                Last Name @*@Html.DisplayNameFor(model => model.lName)*@
+            </th>
+
+            <th>
+                Document Name @* @Html.DisplayNameFor(model => model.DocName)*@
+            </th>
+            <th>
+                Signed@*@Html.DisplayNameFor(model => model.isSigned)*@
+            </th>
+            <th></th>
+
+            <th>
+                Notify@*@Html.DisplayNameFor(model => model.notifyEmail)*@
+            </th>
+            <th>
+                Signatory@*@Html.DisplayNameFor(model => model.signatoryEmail)*@
+            </th>
+            <th>
+                Message@*@Html.DisplayNameFor(model => model.message)*@
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.fName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.lName)
+            </td>
+
+            <td>
+                @Html.DisplayFor(modelItem => item.DocName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.isSigned)
+            </td>
+            <td>
+                @if (item.isSigned)
+                {
+                    @Html.ActionLink("View Signature", "Client", "App", new { id = item.Id })
+                }
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.notifyEmail)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.signatoryEmail)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.message)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.Id })
+                @*| Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |*@
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -39,17 +39,11 @@ namespace SmartSignWebApp.PenConnector
         {
             _hostingEnvironment = hostingEnvironment;
             mSig = new Signature();
-            mBitmap = new Bitmap(w, h); 
+            mBitmap = new Bitmap(w, h);
+
         }
 
-        internal void DrawSignature()
-        {
-            mSig.ForEach(delegate (Stroke s) {
-                DrawStroke(s);
-                Console.WriteLine(s);
-            });
-            saveImage();
-        }
+
 
         public void connectPen()
         {
@@ -123,7 +117,8 @@ namespace SmartSignWebApp.PenConnector
 
         private void saveImage()
         {
-            mBitmap.Save(System.IO.Path.Combine(_hostingEnvironment.WebRootPath, "img/pen/web.png"));
+            var imageSave = new Bitmap(mBitmap);
+            imageSave.Save(System.IO.Path.Combine(_hostingEnvironment.WebRootPath, "img/pen/web.png"));
         }
 
     public void onConnected(IPenComm sender, int maxForce, string firmwareVersion)
@@ -239,7 +234,27 @@ namespace SmartSignWebApp.PenConnector
             }
         }
 
+        internal void DrawSignature()
+        {
+            mSig.ForEach(delegate (Stroke s) {
+                DrawStroke(s);
+                Console.WriteLine(s);
+            });
+            saveImage();
+        }
 
+        internal void DrawSignature(string id, Bitmap b)
+        {
+            mSig.ForEach(delegate (Stroke s) {
+                DrawStroke(s, b);
+                Console.WriteLine(s);
+            });
+            saveImage(id,b);
+        }
+        private void saveImage(string id, Bitmap b)
+        {
+            b.Save(System.IO.Path.Combine(_hostingEnvironment.WebRootPath, "img/pen/"+id+".png"));
+        }
 
         private void DrawStroke(Stroke stroke)
         {
@@ -264,6 +279,31 @@ namespace SmartSignWebApp.PenConnector
                    Color.FromArgb(200, Color.Blue) //color
                    );
             
+        }
+
+        private void DrawStroke(Stroke stroke, Bitmap b)
+        {
+
+            float qx = 91f; //88.88f;
+            float qy = 119.5f;
+            int dx = 1;// 56;// (int)((1 * w) / qx);    //offset x
+            int dy = -6;// 56;//(int)((1 * h) / qy);   //offset y
+            float scalex = (float)(w / qx);
+            float scaley = (float)(h / qy);
+
+
+
+            Renderer.draw(
+                   b,                        //bitmap
+                   stroke,                         //stroke
+                   (float)(w / qx),                //scale x
+                   (float)(h / qy),                //scale y
+                   -dx,                            //offset x
+                   -dy,                            //offset y
+                   1,                              //width
+                   Color.FromArgb(200, Color.Blue) //color
+                   );
+
         }
 
         public void onTarget(Dot dot)

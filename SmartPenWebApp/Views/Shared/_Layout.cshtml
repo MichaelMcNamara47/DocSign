@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>Smart Sign: @ViewBag.Title</title>
+    <title>DocSign: @ViewBag.Title</title>
     <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="~/lib/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
     <link href="~/css/site.css" rel="stylesheet" />
@@ -10,13 +10,13 @@
     <div class="navbar navbar-inverse">
         <header class="container">
             <div class="navbar-header">
-                <div class="navbar-brand"><i class="fa fa-pencil-square"></i> Smart Sign</div>
+                <div class="navbar-brand"><i class="fa fa-pencil-square"></i> DocSign</div>
                 <button class="navbar-toggle" data-toggle="collapse" data-target="#menu">@*&#9776;*@<i class="fa fa-ellipsis-v" style="color:#9d9d9d"></i> </button>
             </div>
             <div id="menu" class="collapse navbar-collapse">
                 <ul class="nav navbar-nav">
-                    <li><a asp-controller="App" asp-action="Admin">Admin</a></li>
-                    <li><a asp-controller="App" asp-action="Search">Search</a></li>
+                    <li><a asp-controller="App" asp-action="Admin">Request Signature</a></li>
+                    <li><a asp-controller="Db" asp-action="Index">View Documents</a></li>
                     @*<li><a asp-controller="App" asp-action="Client">Client</a></li>*@
                 </ul>
             </div>

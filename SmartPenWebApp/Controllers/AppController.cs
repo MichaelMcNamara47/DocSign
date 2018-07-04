@@ -69,7 +69,7 @@ namespace SmartSignWebApp.Controllers
 
         public IActionResult Admin()
         {
-            ViewBag.Title = "Admin";
+            ViewBag.Title = "Request Signature";
             ViewBag.UploadStatus = "Upload";
             return View();
         }
@@ -77,7 +77,7 @@ namespace SmartSignWebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> AdminAsync(AdminViewModel model)
         {
-            ViewBag.Title = "Admin";
+            ViewBag.Title = "Request Signature";
             /*Validation:
              * ModelState - Uses data annotations to validate the model
              */
@@ -91,14 +91,14 @@ namespace SmartSignWebApp.Controllers
                 ModelState.Clear();
             }
             ViewBag.UploadStatus = "Upload";
-            return RedirectToAction("Admin");
+            return RedirectToAction("Index", "Db");
         }
 
-        public async Task<IActionResult> Client()
+        public async Task<IActionResult> Client(string id)
         {
             model = new AdminViewModel();
             Console.WriteLine(Request.QueryString.ToString());
-            model.Id = Request.Path.ToString().Substring(Request.Path.ToString().LastIndexOf('/') + 1);
+            model.Id = id;
             //model.Id = Request.QueryString.ToString().Substring(1);
             //await ReadDocumentIfExists(DatabaseName, CollectionName, model);
             Document storedModel = await _client.ReadDocumentAsync(UriFactory.CreateDocumentUri(DatabaseName, CollectionName, model.Id.ToString()));
@@ -107,7 +107,7 @@ namespace SmartSignWebApp.Controllers
             ViewBag.Id = model.Id;
             if (!model.isSigned)
             {
-                ViewBag.Title = "Welcome " + model.fName + " you are required to sign " + model.DocName;
+                ViewBag.Title = ""+model.DocName+" Signed By: " + model.fName + " "+ model.lName;
                 ViewBag.pdfURL = GetBlobSasUri(model.DocGuid);
                 return View();
             }
@@ -132,22 +132,35 @@ namespace SmartSignWebApp.Controllers
 
         public async Task<IActionResult> DrawSignature()
         {
-            //_penConnector.DrawSignature();
-            //ViewBag.Id = Request.QueryString.ToString();
+            model = new AdminViewModel();
+            model.Id = Request.Path.ToString().Substring(Request.Path.ToString().LastIndexOf('/') + 1);
+
+            // _penConnector.DrawSignature();           
+            Bitmap tempBitmap = new Bitmap(800, 1131);
+            Graphics g = Graphics.FromImage(tempBitmap);
+            g.Clear(Color.Transparent);
+            g.Dispose();
+            //
+            _penConnector.DrawSignature(model.Id, tempBitmap);
+
 
             model = new AdminViewModel();
             model.Id = Request.Path.ToString().Substring(Request.Path.ToString().LastIndexOf('/') + 1);
             Document storedModel = await _client.ReadDocumentAsync(UriFactory.CreateDocumentUri(DatabaseName, CollectionName, model.Id.ToString()));
             model = JsonConvert.DeserializeObject<AdminViewModel>(storedModel.ToString());
 
-            PDFCombine.CombinePdfPng(GetBlobSasUri(model.DocGuid), _hostingEnvironment);
+            //PDFCombine.CombinePdfPng(GetBlobSasUri(model.DocGuid), _hostingEnvironment);
 
+            PDFCombine.CombinePdfPng(GetBlobSasUri(model.DocGuid), model.Id, _hostingEnvironment);
 
+            if (System.IO.File.Exists(System.IO.Path.Combine(_hostingEnvironment.WebRootPath, "img/pen/"+model.Id+".png"))) {
+                System.IO.File.Delete(System.IO.Path.Combine(_hostingEnvironment.WebRootPath, "img/pen/" + model.Id + ".png"));
+            }
 
             string uploadName = System.IO.Path.Combine(_hostingEnvironment.WebRootPath, "pdf/ImageCombine.pdf");
             FileStream fs = new FileStream(uploadName, FileMode.Open, FileAccess.Read);
             model.isSigned = true;
-            model.SignedDocGuid = UploadBlob(fs, model.DocName + "Signed");
+            model.SignedDocGuid = UploadBlob(fs, model.DocName);
             await ReplaceDocument(DatabaseName, CollectionName, model.Id, model);
             ViewBag.Title = "Thank you for signing";
             ViewBag.Id = model.Id;
@@ -185,9 +198,12 @@ namespace SmartSignWebApp.Controllers
             }
 
             model = new AdminViewModel();
-            model.Id = Request.Path.ToString().Substring(Request.Path.ToString().LastIndexOf('/') + 1);
+            var Id = Request.Path.ToString().Substring(Request.Path.ToString().LastIndexOf('/') + 1);
             Document storedModel = await _client.ReadDocumentAsync(UriFactory.CreateDocumentUri(DatabaseName, CollectionName, model.Id.ToString()));
             model = JsonConvert.DeserializeObject<AdminViewModel>(storedModel.ToString());
+
+            //AdminViewModel model = await DocumentDBRepository<AdminViewModel>.GetItemAsync(Id);
+
             ViewBag.pdfURL = GetBlobSasUri(model.DocGuid);
             ViewBag.Id = model.Id;
             ViewBag.DocName = model.DocName;
